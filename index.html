@@ -194,6 +194,13 @@ td:first-child,th:first-child{text-align:left;}
 </div></div>
 
 <div class="wrap" data-page-node-id="sOfAI0cLtpRwGHtLvBm5By"><div id="fetch-help" class="fetch-help" style="display:none;" data-page-node-id="WfQbGVqYWJHhEp9uueOzm5"><span class="close" onclick="this.parentElement.style.display='none'" data-page-node-id="nt5rhBQwmVQvGTwczQAc2f">×</span><span id="fetch-help-txt" data-page-node-id="YBFtzX6VFwoNyybLVF4RZB"></span></div><div id="rpt" data-page-node-id="A6AWoxiPqGa5M3UtseHf20"></div></div>
+<div class="wrap"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 10px;margin-top:8px;border:1px dashed #3a4a5a;border-radius:8px;background:rgba(255,255,255,0.02);">
+  <span style="color:#cdb45a;font-weight:600;white-space:nowrap;">🌐 在线行情代理</span>
+  <input type="text" id="em-proxy" placeholder="粘贴 Cloudflare Worker 地址，如 https://em-proxy.xxx.workers.dev" style="flex:1;min-width:240px;padding:4px 8px;border-radius:6px;border:1px solid #444;background:#14181f;color:#eee;">
+  <button class="btn btn-ghost" onclick="saveEmProxy()">保存</button>
+  <span id="proxy-hint" class="save-hint"></span>
+  <span style="color:#7c8794;font-size:12px;">GitHub Pages 在线版填了代理才能拉实时行情；本地(127.0.0.1)打开无需填。</span>
+</div></div>
 
 <div class="modal" id="m-data" data-page-node-id="ghhyywmxtFfTCcerxAIwyE">
 <div class="box" data-page-node-id="bh6JIQ1bD5sUrnn0ckzfEv">
@@ -2200,9 +2207,30 @@ async function fetchQuote() {
     return j.data;
   }
 
+  // 构造东方财富 host 列表：未配代理→直连；配了 Cloudflare Worker→全部走 /em/<host> 代理前缀
+  function buildEMHosts(proxy) {
+    const rawHosts = ['push2.eastmoney.com','push2delay.eastmoney.com','82.push2.eastmoney.com','48.push2.eastmoney.com'];
+    if (!proxy) return rawHosts.map(function(h){ return 'https://' + h; });
+    const base = proxy.replace(/\/+$/, '');
+    return rawHosts.map(function(h){ return base + '/em/' + h; });
+  }
+  // 「🌐 在线行情代理」输入框：把 Worker 地址存进 localStorage
+  function saveEmProxy() {
+    const inp = document.getElementById('em-proxy');
+    const v = (inp && inp.value || '').trim();
+    localStorage.setItem('futures_em_proxy', v);
+    const hint = document.getElementById('proxy-hint');
+    if (hint) { hint.textContent = v ? '已保存 ✓' : '已清空'; hint.className = 'save-hint' + (v ? ' ok' : ''); }
+    const st = document.getElementById('status-txt');
+    if (st) st.textContent = v ? '行情代理已配置' : '行情代理已清空';
+  }
+  // 打开页面时回填已保存的代理地址
+  (function(){ try { const pv = (localStorage.getItem('futures_em_proxy') || '').trim(); const inp = document.getElementById('em-proxy'); if (inp && pv) inp.value = pv; } catch(e){} })();
+
   async function fetchFromEM() {
     // 多域名 fallback（部分网络会阻断主域名），并兼容 diff(对象)/list(数组) 两种返回格式
-    const hosts = ['https://push2.eastmoney.com','https://push2delay.eastmoney.com','https://82.push2.eastmoney.com','https://48.push2.eastmoney.com'];
+    const EM_PROXY = (localStorage.getItem('futures_em_proxy') || '').trim();
+    const hosts = buildEMHosts(EM_PROXY);
     const fields = 'f12,f13,f14,f43,f2,f3,f5,f44,f45,f46,f60,f170,f86,f78';
     let lastErr = null;
     for (let hi = 0; hi < hosts.length; hi++) {
@@ -2266,22 +2294,37 @@ async function fetchQuote() {
   dot.className = 'dot empty';
 
   let lastErr = null;
-  // 1. 先走本地服务（绕过 CORS / WorkBuddy 内置浏览器限制）
   let quoteSource = '';
   let labels = null, midIdx = 0;
-  try {
-    const q = await fetchFromLocal();
-    midIdx = applyTerm(q);
-    labels = q.labels;
-    quoteSource = q.source || '本地服务';
-  } catch(e) {
-    lastErr = e;
-    txt.textContent = '⏳ 本地服务未响应，尝试直连东方财富…';
+  const isLocalHost = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '[::1]');
+  if (isLocalHost) {
+    // 本地服务(127.0.0.1:8766)优先：绕过 CORS / WorkBuddy 内置浏览器限制
+    try {
+      const q = await fetchFromLocal();
+      midIdx = applyTerm(q);
+      labels = q.labels;
+      quoteSource = q.source || '本地服务';
+    } catch(e) {
+      lastErr = e;
+      txt.textContent = '⏳ 本地服务未响应，尝试直连东方财富…';
+      try {
+        const q = await fetchFromEM();
+        midIdx = applyTerm(q);
+        labels = q.labels;
+        quoteSource = q.source || '东方财富';
+      } catch(e2) {
+        lastErr = e2;
+      }
+    }
+  } else {
+    // 在线版(如 GitHub Pages)：无本地服务，直接走东方财富；已配代理则走 Cloudflare Worker 绕过 CORS
+    const px = (localStorage.getItem('futures_em_proxy') || '').trim();
+    txt.textContent = px ? '⏳ 正在经行情代理拉取实时行情…' : '⏳ 正在从东方财富拉取行情…';
     try {
       const q = await fetchFromEM();
       midIdx = applyTerm(q);
       labels = q.labels;
-      quoteSource = q.source || '东方财富';
+      quoteSource = px ? '行情代理' : '东方财富';
     } catch(e2) {
       lastErr = e2;
     }

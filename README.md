@@ -18,7 +18,17 @@
 ## 实时行情说明（部署到 GitHub Pages 后）
 
 - **本地行情服务**（`127.0.0.1:8766`）：仅在你自己电脑上运行 `期货行情服务.py` 时可用，Pages 上无效。
-- **东方财富 push2 行情**：从 `*.github.io` 跨域调用可能被浏览器 CORS 拦截。若需要在线实时行情，可加一个 Cloudflare Worker 做反向代理（将 `push2.eastmoney.com` 代理到同源），再改模板里的接口地址即可。
+- **东方财富 push2 行情**：从 `*.github.io` 跨域调用会被浏览器 CORS 拦截（东方财富不返回 `Access-Control-Allow-Origin`）。模板已内置「🌐 在线行情代理」开关：**填一个 Cloudflare Worker 地址即可让在线版也能拉实时行情**。本地（127.0.0.1）打开无需填，自动走本地服务优先。
+
+### 给在线版加实时行情（Cloudflare Worker 反向代理，免费）
+
+1. 登录 https://dash.cloudflare.com → 左侧 **Workers & Pages** → **创建 Worker**（免费额度足够）。
+2. 把本仓库 `cloudflare/worker.js` 的内容**整段粘贴**进编辑器，点 **Save and Deploy**。
+3. 记下分配的子域，形如 `https://em-proxy.<你的子域>.workers.dev`。
+4. 打开已部署的页面 `https://<你的用户名>.github.io/futures/` → 顶部「🌐 在线行情代理」输入框粘贴该地址 → 点 **保存**。
+5. 点「🔄 一键下载行情」，提示「正在经行情代理拉取实时行情」即成功。
+
+> 原理：Worker 把 `https://<子域>.workers.dev/em/push2.eastmoney.com/...` 还原成 `https://push2.eastmoney.com/...` 并补 `Access-Control-Allow-Origin: *` 响应头，绕过浏览器 CORS。所有请求仍只到你自己的 Worker，数据不经过任何第三方。
 
 ## 部署到 GitHub Pages
 
