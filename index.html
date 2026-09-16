@@ -412,8 +412,12 @@ function richness(o) {
   if (o.drivers && o.drivers.short && o.drivers.short.length) s += o.drivers.short.length;
   return s;
 }
+/* 快照：内嵌原始数据(作远程种子合并的 base) + 用户 localStorage 原始数据(判定“是否手改过”) */
+const EMBED_BASE = JSON.parse(JSON.stringify(DATA));
+let SAVED_RAW = {};
+try { SAVED_RAW = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e) {}
 try {
-  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+  const saved = SAVED_RAW;
   /* 基本面以 HTML 内嵌数据为准：localStorage 若存了旧骨架/空数据，不应覆盖完整数据；
      但用户校准(quad/tldr)和通过「导入JSON」写入的 richer 数据要保留。 */
   // 旧格式检测：早期错误导入的 EC 等品种，term.rows/basis.rows 是「对象数组」（[{..},{..}]），
@@ -439,6 +443,61 @@ try {
     }
   }
 } catch(e) {}
+
+/* === 远程种子合并（GitHub Pages 打开即带最新数据）===
+   优先级：内嵌 < 远程 data/patch.json < 用户浏览器 localStorage 手改
+   拉不到（离线/CORS/失败）自动跳过，页面照常使用内嵌数据，不会白屏。 */
+function deepMergeInto(base, patch) {
+  if (!patch || typeof patch !== 'object') return;
+  for (const k in patch) {
+    const pv = patch[k];
+    if (pv && typeof pv === 'object' && !Array.isArray(pv) &&
+        base[k] && typeof base[k] === 'object' && !Array.isArray(base[k])) {
+      deepMergeInto(base[k], pv);
+    } else {
+      base[k] = pv;
+    }
+  }
+}
+/* 判定用户是否在浏览器里手改过该品种：动过 quad 校准或 tldr 即视为个人定制，远程种子不覆盖 */
+function userCustomized(o) {
+  if (!o || typeof o !== 'object') return false;
+  if (o.tldr) return true;
+  const q = o.quad;
+  if (q && typeof q === 'object') {
+    if (q.profit != null || q.cost != null || q.trend != null ||
+        q.inv_pct != null || q.basis_pct != null) return true;
+  }
+  return false;
+}
+async function applyRemoteSeed() {
+  const urls = [
+    'https://cdn.jsdelivr.net/gh/zw760115/futures@main/data/patch.json',
+    'https://raw.githubusercontent.com/zw760115/futures/main/data/patch.json'
+  ];
+  for (const u of urls) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(function(){ ctrl.abort(); }, 8000);
+      const r = await fetch(u, { signal: ctrl.signal, cache: 'no-cache' });
+      clearTimeout(timer);
+      if (!r.ok) continue;
+      const patch = await r.json();
+      if (!patch || typeof patch !== 'object') continue;
+      let changed = false;
+      for (const code in patch) {
+        // 用户在浏览器里手改过（动了 quad/tldr 校准）→ 远程种子不覆盖，尊重个人手填
+        if (SAVED_RAW[code] && userCustomized(SAVED_RAW[code])) continue;
+        if (!DATA[code]) { DATA[code] = {}; }
+        deepMergeInto(DATA[code], patch[code]);
+        changed = true;
+      }
+      if (changed) { saveStore(); render(); }
+      return; // 任一源成功即用，不继续
+    } catch (e) { /* 离线/CORS/超时 → 忽略，用内嵌数据 */ }
+  }
+}
+applyRemoteSeed();
 
 function saveStore() {
   const out = {};
