@@ -158,8 +158,6 @@ td:first-child,th:first-child{text-align:left;}
 .stats-top .st-rank{flex:0 0 18px;height:18px;line-height:18px;text-align:center;border-radius:5px;font-size:11px;font-weight:700;color:#fff;background:var(--sub);}
 .stats-top .st-item.bull .st-rank{background:var(--red);}
 .stats-top .st-item.bear .st-rank{background:var(--green);}
-.stats-top .st-title.early{color:var(--gold);}
-.stats-top .st-item.early .st-rank{background:var(--gold);}
 .stats-top .st-code{font-size:13px;font-weight:700;color:var(--ink);flex:0 0 108px;}
 .stats-top .st-score{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;}
 .stats-top .st-score.up{color:var(--red);}
@@ -1571,19 +1569,6 @@ function proRank(){
   arr.sort(function(a, b){ return b.score - a.score; });
   return arr;
 }
-
-/* ===== 基本面改变早期：|分值| >= 阈值、且未进 TOP3 的品种（信号已成立、尚未走向极端） =====
-   这类品种基本面方向刚明确、盘面尚未充分定价，适合盯转折；因数据完整度/结构可能反复，不宜直接单边重仓。 */
-var EARLY_SCORE = 50;   /* 入榜门槛：|分值| >= 50 */
-var EARLY_MAX   = 5;    /* 最多展示数量（总数上限） */
-function proEarly(arr, exclude){
-  var ex = exclude || {};
-  return arr.filter(function(r){
-    return Math.abs(r.score) >= EARLY_SCORE && !ex[r.code];
-  }).sort(function(a, b){
-    return Math.abs(b.score) - Math.abs(a.score);   /* 按 |分值| 降序：信号最强的排前面 */
-  }).slice(0, EARLY_MAX);
-}
 function pickCommodity(code){
   const sel = document.getElementById('sel'); if (!sel) return;
   sel.value = code; render();
@@ -1602,28 +1587,18 @@ function buildStatsBar(){
   const cell = function(r, i, type){
     const cls = r.score > 0 ? 'up' : (r.score < 0 ? 'down' : 'flat');
     const covTxt = r.cover < 100 ? ' · 数据' + r.cover + '%' : '';
-    const dirTxt = (type === 'early') ? (r.score > 0 ? '早期偏多 · ' : '早期偏空 · ') : '';
     return '<div class="st-item ' + type + '" onclick="pickCommodity(\'' + r.code + '\')" title="分值 ' + r.score + '，数据完整度 ' + r.cover + '%">'
       + '<span class="st-rank">' + (i + 1) + '</span>'
       + '<span class="st-code">' + r.code + ' ' + esc(r.name) + '</span>'
       + '<span class="st-score ' + cls + '">' + (r.score > 0 ? '+' : '') + r.score + '</span>'
-      + '<span class="st-parts">' + esc(dirTxt + r.parts.join(' · ') + covTxt) + '</span></div>';
+      + '<span class="st-parts">' + esc(r.parts.join(' · ') + covTxt) + '</span></div>';
   };
-  const taken = {}; bulls.concat(bears).forEach(function(r){ taken[r.code] = 1; });
-  const early = proEarly(arr, taken);
-  const earlyCol = early.length
-    ? '<div class="st-col"><div class="st-title early">⚡ 基本面改变早期 · |分值| ≥ ' + EARLY_SCORE + '</div>'
-      + early.map(function(r, i){ return cell(r, i, 'early'); }).join('') + '</div>'
-    : '';
   return '<div class="stats-top">' + head
     + '<div class="st-cols">'
     +   '<div class="st-col"><div class="st-title bull">🐂 最强多头 TOP3</div>' + bulls.map(function(r, i){ return cell(r, i, 'bull'); }).join('') + '</div>'
     +   '<div class="st-col"><div class="st-title bear">🐻 最弱空头 TOP3</div>' + bears.map(function(r, i){ return cell(r, i, 'bear'); }).join('') + '</div>'
-    +   earlyCol
     + '</div>'
-    + '<div class="st-note">分值越高越偏多、越低越偏空，口径与「六、高阶版判定」一致（库存越低 / 持续去库 / 期货贴水 / 利润越低 / Back 结构 → 偏多，反向偏空）。当前已纳入排行的品种 ' + arr.length + ' 个；点击任意品种可跳转查看详情。'
-    + (early.length ? '<br/><b>⚡ 基本面改变早期</b>：|分值| ≥ ' + EARLY_SCORE + ' 且未进 TOP3 的品种（方向已成立、尚未走向极端），最多 ' + EARLY_MAX + ' 个，按 |分值| 降序 —— 适合盯转折，不宜直接单边重仓。' : '')
-    + '</div>'
+    + '<div class="st-note">分值越高越偏多、越低越偏空，口径与「六、高阶版判定」一致（库存越低 / 持续去库 / 期货贴水 / 利润越低 / Back 结构 → 偏多，反向偏空）。当前已纳入排行的品种 ' + arr.length + ' 个；点击任意品种可跳转查看详情。</div>'
     + '</div>';
 }
 
