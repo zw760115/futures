@@ -2147,6 +2147,19 @@ function contractYM(full) {
   return '—';
 }
 
+// === 在线行情代理：保存 + 页面加载回填（全局，供 onclick 调用）===
+function saveEmProxy() {
+  const inp = document.getElementById('em-proxy');
+  const v = (inp && inp.value || '').trim();
+  localStorage.setItem('futures_em_proxy', v);
+  const hint = document.getElementById('proxy-hint');
+  if (hint) { hint.textContent = v ? '已保存 ✓' : '已清空'; hint.className = 'save-hint' + (v ? ' ok' : ''); }
+  const st = document.getElementById('status-txt');
+  if (st) st.textContent = v ? '行情代理已配置' : '行情代理已清空';
+}
+// 打开页面时回填已保存的代理地址
+(function(){ try { const pv = (localStorage.getItem('futures_em_proxy') || '').trim(); const inp = document.getElementById('em-proxy'); if (inp && pv) inp.value = pv; } catch(e){} })();
+
 // === 一键下载行情（本地服务优先 → 东方财富直连）===
 async function fetchQuote() {
   const code = document.getElementById('sel').value;
@@ -2214,18 +2227,6 @@ async function fetchQuote() {
     const base = proxy.replace(/\/+$/, '');
     return rawHosts.map(function(h){ return base + '/em/' + h; });
   }
-  // 「🌐 在线行情代理」输入框：把 Worker 地址存进 localStorage
-  function saveEmProxy() {
-    const inp = document.getElementById('em-proxy');
-    const v = (inp && inp.value || '').trim();
-    localStorage.setItem('futures_em_proxy', v);
-    const hint = document.getElementById('proxy-hint');
-    if (hint) { hint.textContent = v ? '已保存 ✓' : '已清空'; hint.className = 'save-hint' + (v ? ' ok' : ''); }
-    const st = document.getElementById('status-txt');
-    if (st) st.textContent = v ? '行情代理已配置' : '行情代理已清空';
-  }
-  // 打开页面时回填已保存的代理地址
-  (function(){ try { const pv = (localStorage.getItem('futures_em_proxy') || '').trim(); const inp = document.getElementById('em-proxy'); if (inp && pv) inp.value = pv; } catch(e){} })();
 
   async function fetchFromEM() {
     // 多域名 fallback（部分网络会阻断主域名），并兼容 diff(对象)/list(数组) 两种返回格式
