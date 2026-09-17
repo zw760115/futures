@@ -25,7 +25,7 @@
     （macOS 系统代理 / FlClash 混合端口 7890 等）。
   - 产业利润快照取 Desktop 与 Downloads 两份中 mtime 最新的一份。
 """
-import os, re, sys, json, glob, time, shutil, base64, subprocess
+import os, re, sys, json, glob, time, shutil, subprocess
 
 REPO = os.path.dirname(os.path.abspath(__file__))
 DESK_DIR = os.path.expanduser('~/Desktop/期货研究数据')
@@ -140,9 +140,16 @@ def _detect_proxies():
             pass
     return ok
 
-def _try_push(auth_header, cfg, env, label):
-    cmd = ['git'] + cfg + ['-c', 'http.extraHeader=' + auth_header, 'push', 'origin', 'main']
-    r = subprocess.run(cmd, capture_output=True, text=True, env=env)
+def _try_push(token, cfg, env, label):
+    """用临时 credential.helper 供上 token（token 走环境变量，不进 argv、不留盘）。"""
+    e = dict(env)
+    e['GH_TOKEN'] = token
+    e['GIT_TERMINAL_PROMPT'] = '0'
+    cmd = (['git'] + cfg
+           + ['-c', 'credential.helper=',                                   # 先清掉继承的 osxkeychain
+              '-c', 'credential.helper=!f(){ echo username=x; echo password=$GH_TOKEN; };f',
+              'push', 'origin', 'main'])
+    r = subprocess.run(cmd, capture_output=True, text=True, env=e)
     if r.returncode == 0:
         print(f'  ✓ 推送成功（{label}）')
         return True
@@ -198,17 +205,15 @@ def push():
     if not token:
         print('✗ 未取到 GitHub token（~/bin/gh auth token 失败），无法推送')
         sys.exit(1)
-    auth = 'Basic ' + base64.b64encode(('x:' + token).encode()).decode()
-
     # 尝试顺序：干净环境直连 → 干净环境直连(HTTP/1.1) → 各可用本地代理
-    if _try_push(auth, [], _clean_env(), '直连'):
+    if _try_push(token, [], _clean_env(), '直连'):
         print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
         return
-    if _try_push(auth, ['-c', 'http.version=HTTP/1.1'], _clean_env(), '直连 HTTP/1.1'):
+    if _try_push(token, ['-c', 'http.version=HTTP/1.1'], _clean_env(), '直连 HTTP/1.1'):
         print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
         return
     for proxy in _detect_proxies():
-        if _try_push(auth, ['-c', 'http.version=HTTP/1.1'], _clean_env(proxy), '代理 ' + proxy):
+        if _try_push(token, ['-c', 'http.version=HTTP/1.1'], _clean_env(proxy), '代理 ' + proxy):
             print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
             return
     print('✗ 推送失败（网络/代理问题）。请确认 FlClash 已开启并选好节点，再重试：'
