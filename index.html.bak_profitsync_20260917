@@ -2600,48 +2600,29 @@ async function fetchQuote() {
 
 // === 产业利润快照：AI 网络检索维护（期货研究数据/产业利润快照.json），下载行情后自动调用 ===
 let PROFIT_SNAPSHOT_META = null; // {asof, applied, file}
-/* 快照载荷归一化，兼容三种形态：
-   ① 本地服务 /api/profit_snapshot → {ok:true, data:<snapshot>, file}
-   ② 网站同源静态文件 data/profit_snapshot.json → <snapshot> 裸对象
-   ③ 旧式嵌套 → {data:{data:{…}}} */
-function normProfitSnapshot(j){
-  if (!j || typeof j !== 'object') return null;
-  if (j.ok === true && j.data) j = j.data;                  // ① 服务包装层
-  if (j && j.data && j.data.data && !j.asof) j = j.data;    // ③ 旧式嵌套
-  if (j && j.data && typeof j.data === 'object') return j;
-  return null;
-}
 async function loadProfitSnapshot(){
   const sameOrigin = (location.protocol === 'http:' || location.protocol === 'https:');
   const base = sameOrigin ? '' : 'http://127.0.0.1:8766';
-  // 先试本地服务（本地/桌面场景），再试网站同源静态文件（GitHub Pages 线上版）
-  const urls = [base + '/api/profit_snapshot', base + '/data/profit_snapshot.json'];
-  let snap = null, srcFile = '';
-  for (const u of urls) {
-    try {
-      const r = await tryFetch(u + '?_=' + Date.now(), null, 6000);
-      if (!r || !r.ok) continue;
-      const raw = await r.json();
-      const s = normProfitSnapshot(raw);
-      if (s) { snap = s; srcFile = (raw && raw.file) || u; break; }
-    } catch(e) { /* 换下一个源 */ }
-  }
-  if (!snap) return null;
-  const data = snap.data || {};
+  let j = null;
+  try {
+    const r = await tryFetch(base + '/api/profit_snapshot?_=' + Date.now(), null, 6000);
+    if (!r.ok) return null;
+    j = await r.json();
+  } catch(e) { return null; }
+  if (!j || !j.ok || !j.data || !j.data.data) return null;
+  const snap = j.data, data = snap.data || {};
   let merged = 0;
   for (const k in data) {
-    const old = PROFIT_REF[k] || {};
     PROFIT_REF[k] = {
-      // 保守合并：快照为 null 时不用 null 冲掉内嵌参考值（避免「生产成本价」被清空）
-      profit: data[k].profit || old.profit || null,
-      cost: (data[k].cost == null ? (old.cost == null ? null : old.cost) : data[k].cost),
+      profit: data[k].profit || null,
+      cost: (data[k].cost == null ? null : data[k].cost),
       asof: data[k].asof || snap.asof || null,
-      src: data[k].src || old.src || '产业利润快照',
-      note: data[k].note || old.note || ''
+      src: data[k].src || '产业利润快照',
+      note: data[k].note || ''
     };
     merged++;
   }
-  PROFIT_SNAPSHOT_META = { asof: snap.asof, applied: merged, file: srcFile };
+  PROFIT_SNAPSHOT_META = { asof: snap.asof, applied: merged, file: j.file || '' };
   return merged;
 }
 /* 高阶版品种中仍缺利润数据的（无手工填写、无参考库） */
