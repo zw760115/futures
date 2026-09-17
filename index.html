@@ -2732,7 +2732,7 @@ async function fetchQuote() {
 
   if (labels) {
     // 拉基本面（基差/库存/仓单/驱动）从本地 /api/fundamentals
-    let fundOK = false;
+    let fundOK = false, fundReason = '';
     try {
       const f = await fetchFundamentals();
       if (f) {
@@ -2743,8 +2743,10 @@ async function fetchQuote() {
         if (f.inv && ((f.inv.warrant && f.inv.warrant.items && f.inv.warrant.items.length) || (f.inv.industrial && f.inv.industrial.total != null))) DATA[code].inv = f.inv;
         if (f.drivers && ((f.drivers.long && f.drivers.long.length) || f.drivers.view)) DATA[code].drivers = f.drivers;
         fundOK = true;
+      } else {
+        fundReason = '本地服务无该品种预置（HTTP 404）';
       }
-    } catch(fe) { /* 基本面拉取失败不影响主流程 */ }
+    } catch(fe) { fundReason = '本地服务未运行（双击「启动期货行情服务.command」）'; }
 
     // 判断当前 DATA 是否已有人工/内嵌基本面（防止本地服务没有 .json 时误标「待补全」）
     function hasFundamental(d) {
@@ -2764,7 +2766,7 @@ async function fetchQuote() {
     if (fundOK) {
       tBase.push({k: '基本面', v: '已自动补齐', c: '', d: '基差/库存/驱动从本地服务预置补全'});
     } else if (hasLocalFund) {
-      tBase.push({k: '基差/库存', v: '已有本地数据', c: '', d: '来自 HTML 内嵌种子或「数据管理」导入，未从本地服务刷新'});
+      tBase.push({k: '基差/库存', v: '已有本地数据', c: '', d: '来自 HTML 内嵌种子或「数据管理」导入' + (fundReason ? '（' + fundReason + '）' : '')});
     } else {
       tBase.push({k: '基差/库存', v: '待补全', c: 'warn', d: '基本面服务暂无该品种预置，建议用「数据管理」或「向 AI 补全」'});
     }

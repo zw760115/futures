@@ -6,5 +6,11 @@
   "asof": "2026-09-17",
   "count": 59,
   "fetch_time": "2026-09-17 17:07:19"
+ },
+ "sync": {
+  "last_run": "2026-09-17 17:07:37",
+  "last_success": "2026-09-17 17:07:37",
+  "status": "ok",
+  "pushed": true
  }
 }
