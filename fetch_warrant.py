@@ -74,6 +74,30 @@ SHFE_CODE2CN = {
 # 广期所代码(小写->大写, 与模板一致)
 GFEX_CODES = {"SI", "LC", "PS"}
 
+# 各品种合约乘数(吨/手 或 吨/张, 与交易所一致); 用于把"张/手"换算成"万吨"显示
+TON_PER_LOT = {
+    # 上期所
+    "AU": 0.001, "AG": 0.015, "CU": 5, "AL": 5, "AO": 20, "NI": 1, "SN": 1,
+    "ZN": 5, "PB": 5, "RB": 10, "HC": 10, "BU": 10, "NR": 10, "BR": 5,
+    "SS": 5, "SP": 10,
+    # 郑商所
+    "SR": 10, "CF": 5, "CY": 5, "TA": 5, "MA": 10, "FG": 20, "SA": 20, "UR": 20,
+    "RM": 10, "OI": 10, "PK": 5, "AP": 10, "CJ": 5, "SF": 5, "SM": 5, "WH": 20,
+    "JR": 20, "LR": 20, "RI": 20, "RS": 10, "PM": 50, "PF": 5,
+    # 大商所
+    "A": 10, "B": 10, "M": 10, "Y": 10, "P": 10, "C": 10, "CS": 10, "RR": 10,
+    "JD": 5, "LH": 16, "JM": 60, "J": 100, "I": 100, "L": 5, "V": 5, "PP": 5,
+    "EG": 10, "EB": 5, "LG": 90,
+    # 广期所
+    "SI": 5, "LC": 1, "PS": 3,
+}
+DEFAULT_TON = 10  # 未知品种按 10 吨/手估算
+
+
+def _wan(total, code):
+    """把 张/手 换算成 万吨(保留4位)"""
+    return round(total * TON_PER_LOT.get(code, DEFAULT_TON) / 10000.0, 4)
+
 
 def _to_int(x):
     try:
@@ -133,7 +157,8 @@ def fetch_czce(date):
             total = sum(it["value"] for it in items)
             delta = sum(_to_int(r[delta_col]) for _, r in df.iterrows() if delta_col and str(r[name_col]).strip() not in ("总计", "小计")) if delta_col else 0
         out[code] = {"exchange": "郑商所", "total": total, "delta": delta,
-                     "unit": "张", "items": items, "source": "czce"}
+                     "unit": "张", "total2": _wan(total, code),
+                     "items": items, "source": "czce"}
     return out
 
 
@@ -160,7 +185,8 @@ def fetch_dce(date):
             and _to_int(r["wbillQty"]) > 0
         ]
         out[code] = {"exchange": "大商所", "total": total, "delta": delta,
-                     "unit": "手", "items": items, "source": "dce"}
+                     "unit": "手", "total2": _wan(total, code),
+                     "items": items, "source": "dce"}
     return out
 
 
@@ -185,7 +211,8 @@ def fetch_gfex(date):
             if _to_int(r["wbillQty"]) > 0
         ]
         out[code] = {"exchange": "广期所", "total": total, "delta": delta,
-                     "unit": "手", "items": items, "source": "gfex"}
+                     "unit": "手", "total2": _wan(total, code),
+                     "items": items, "source": "gfex"}
     return out
 
 
@@ -211,6 +238,7 @@ def fetch_shfe_em(date):
                 "total": _to_int(r["库存"]),
                 "delta": _to_int(r["增减"]),
                 "unit": "张",
+                "total2": _wan(_to_int(r["库存"]), code),
                 "items": [],
                 "source": "eastmoney",
             }

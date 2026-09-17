@@ -289,6 +289,23 @@ const COMMODITIES = [["AU", "黄金", "上期所", "贵金属"], ["AG", "白银"
 const CODE_MAP = {};
 for (const c of COMMODITIES) CODE_MAP[c[0]] = c;
 
+/* 各品种合约乘数(吨/手 或 吨/张, 与交易所一致); 把"张/手"换算成"万吨"显示 */
+const TON_PER_LOT = {
+  AU:0.001, AG:0.015, CU:5, AL:5, AO:20, NI:1, SN:1, ZN:5, PB:5, RB:10, HC:10,
+  BU:10, NR:10, BR:5, SS:5, SP:10,
+  SR:10, CF:5, CY:5, TA:5, MA:10, FG:20, SA:20, UR:20, RM:10, OI:10, PK:5,
+  AP:10, CJ:5, SF:5, SM:5, WH:20, JR:20, LR:20, RI:20, RS:10, PM:50, PF:5,
+  A:10, B:10, M:10, Y:10, P:10, C:10, CS:10, RR:10, JD:5, LH:16, JM:60, J:100,
+  I:100, L:5, V:5, PP:5, EG:10, EB:5, LG:90,
+  SI:5, LC:1, PS:3
+};
+function warrantWan(code, total, unit, total2) {
+  const u = unit || '张';
+  let wan = total2;
+  if (wan == null) { const tpl = TON_PER_LOT[code] || 10; wan = total * tpl / 10000; }
+  return { unit: u, wan: wan };
+}
+
 /* 高阶版可覆盖品种：产业成本/利润数据可公开检索（期货公司日报/隆众/百川/钢联/SMM 转载）；
    未在此列的品种（贵金属/原油/集运/股指国债/暂无可靠口径品种）维持进阶版（库存+基差） */
 const PROFIT_AVAIL = {
@@ -536,6 +553,103 @@ async function applyWarrantSeed() {
 }
 applyWarrantSeed();
 
+// === 每日期现数据（自动测算基差）→ data/basis.json ===
+async function applyBasisSeed() {
+  const urls = [
+    'https://cdn.jsdelivr.net/gh/zw760115/futures@main/data/basis.json',
+    'https://raw.githubusercontent.com/zw760115/futures/main/data/basis.json'
+  ];
+  for (const u of urls) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(function(){ ctrl.abort(); }, 8000);
+      const r = await fetch(u, { signal: ctrl.signal, cache: 'no-cache' });
+      clearTimeout(timer);
+      if (!r.ok) continue;
+      const patch = await r.json();
+      if (!patch || !patch.basis) continue;
+      let changed = false;
+      for (const code in patch.basis) {
+        const b = patch.basis[code];
+        if (!DATA[code]) DATA[code] = {};
+        if (b.spot != null) DATA[code].spot = b.spot;
+        DATA[code].basis = {
+          rows: [['东方财富期现', b.spot, b.dominant_contract, b.basis,
+                  '主力基差(现货−主力期货)', 'akshare期现自动测算']],
+          spot: b.spot,
+          dominant_price: b.dominant_price,
+          basis: b.basis,
+          basis_rate: b.basis_rate,
+          auto: true
+        };
+        updateAutoTldr(code);
+        changed = true;
+      }
+      if (changed) { saveStore(); render(); }
+      return;
+    } catch (e) { /* 离线/CORS/超时 → 用内嵌基差数据 */ }
+  }
+}
+applyBasisSeed();
+
+// === 每日产业利润（自动测算）→ data/profit.json ===
+async function applyProfitSeed() {
+  const urls = [
+    'https://cdn.jsdelivr.net/gh/zw760115/futures@main/data/profit.json',
+    'https://raw.githubusercontent.com/zw760115/futures/main/data/profit.json'
+  ];
+  for (const u of urls) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(function(){ ctrl.abort(); }, 8000);
+      const r = await fetch(u, { signal: ctrl.signal, cache: 'no-cache' });
+      clearTimeout(timer);
+      if (!r.ok) continue;
+      const patch = await r.json();
+      if (!patch || !patch.profit) continue;
+      let changed = false;
+      for (const code in patch.profit) {
+        const p = patch.profit[code];
+        if (!DATA[code]) DATA[code] = {};
+        if (!DATA[code].quad) DATA[code].quad = {};
+        const q = DATA[code].quad;
+        q.profit_value = p.value;          // 元/吨（实时测算）
+        q.profit_unit = p.unit || '元/吨';
+        q.profit_band = p.band;            // high/mid/low
+        q.profit_formula = p.formula;
+        q.profit_legs = p.legs;
+        q.profit_note = p.note;
+        q.profit_asof = patch.data_date;
+        // 仅当用户未在浏览器手填过利润档位时，自动同步区间档位
+        if (!(SAVED_RAW[code] && userCustomized(SAVED_RAW[code]))) {
+          q.profit = p.band;
+        }
+        updateAutoTldr(code);
+        changed = true;
+      }
+      if (changed) { saveStore(); render(); }
+      return;
+    } catch (e) { /* 离线/CORS/超时 → 用内嵌/参考库利润 */ }
+  }
+}
+applyProfitSeed();
+
+// 把自动测算的基差/利润同步进品种 tldr（概要卡片），不影响用户手填的其它行
+function updateAutoTldr(code) {
+  const d = DATA[code]; if (!d || !Array.isArray(d.tldr)) return;
+  const b = d.basis;
+  if (b && b.basis != null) {
+    d.tldr = d.tldr.filter(function(t){ return t.k !== '基差'; });
+    const txt = (b.basis >= 0 ? '期货贴水 +' : '期货升水 ') + Math.abs(b.basis);
+    d.tldr.push({k:'基差', v: txt, c:'', d:'现货 '+(b.spot!=null?b.spot:'—')+' vs 主力 '+(b.dominant_price!=null?b.dominant_price:'—')+'（自动测算）'});
+  }
+  const q = d.quad || {};
+  if (q.profit_value != null) {
+    d.tldr = d.tldr.filter(function(t){ return t.k !== '产业利润'; });
+    d.tldr.push({k:'产业利润', v: q.profit_value.toFixed(0)+' '+(q.profit_unit||'元/吨'), c:'', d:'自动测算 · '+(q.profit_formula||'')});
+  }
+}
+
 function saveStore() {
   const out = {};
   for (const k in DATA) out[k] = DATA[k];
@@ -781,13 +895,13 @@ function buildInv(d) {
   let h = '<div class="card"><h2>三、库存</h2><div class="grid2">';
   h += '<div><h3>① 交易所注册仓单（'+(w.exchange||'—')+'）</h3>';
   if (w.items && w.items.length) {
-    h += '<p>仓单总量 <b>'+esc(w.total||0)+' 张'+(w.total2!=null?'（≈'+esc(w.total2)+' 万吨）':'')+'</b>';
+    h += '<p>仓单总量 <b>'+esc(w.total||0)+' '+(w.unit||'张')+(w.total2!=null?'（≈'+esc(w.total2)+' 万吨）':'')+'</b>';
     if (w.delta!=null) h += '，较昨日 <span class="'+((w.delta<0)?'down':'up')+'">'+(w.delta>0?'+':'')+w.delta+'</span>';
     if (w.forecast!=null) h += '，有效预报 '+w.forecast+' 张';
     h += '。</p>';
     h += '<div style="width:100%;margin:10px 0;">'+svgPie({items:w.items,total:w.total2||w.total,uid:'p'})+'</div>';
   } else if (w.total!=null || w.delta!=null || w.forecast!=null) {
-    h += '<p>仓单总量 <b>'+esc(w.total||0)+' 张'+(w.total2!=null?'（≈'+esc(w.total2)+' 万吨）':'')+'</b>';
+    h += '<p>仓单总量 <b>'+esc(w.total||0)+' '+(w.unit||'张')+(w.total2!=null?'（≈'+esc(w.total2)+' 万吨）':'')+'</b>';
     if (w.delta!=null) h += '，较昨日 <span class="'+((w.delta<0)?'down':'up')+'">'+(w.delta>0?'+':'')+w.delta+'</span>';
     if (w.forecast!=null) h += '，有效预报 '+w.forecast+' 张';
     h += '。</p>';
@@ -1536,6 +1650,17 @@ function buildArbitrage(code, d, meta){
   h+='<div class="q-box"><div class="lbl">③ 现货生产利润</div><div class="val '+pCls+'">'+pTxt+'</div><div class="thr">'+(profitSrc==='ref'?('参考库自动 · '+esc(ref.asof||'')+' · 可手工覆盖'):'人工填写 · 决定「单边 vs 套利」')+'</div></div>';
   h+='</div>';
 
+  /* 产业利润自动测算数值（来自 data/profit.json，每日刷新） */
+  if (q.profit_value != null) {
+    const pv = q.profit_value;
+    const pvCls = pv > 150 ? 'q-bad' : (pv < -150 ? 'q-ok' : 'q-mid');
+    h += '<div class="q-src" style="margin-top:10px;">🤖 <b>产业利润（自动测算 · '+(q.profit_asof||'')+'）</b>：<b class="'+pvCls+'">'+pv.toFixed(0)+' '+(q.profit_unit||'元/吨')+'</b>'
+        + (q.profit_formula ? ' · 公式：'+esc(q.profit_formula) : '');
+    if (q.profit_legs) h += ' · 腿价 '+Object.entries(q.profit_legs).map(function(e){return esc(e[0])+'='+e[1];}).join(' / ');
+    if (q.profit_note) h += ' · <span style="opacity:.85">'+esc(q.profit_note)+'</span>';
+    h += '</div>';
+  }
+
   /* 跨期价差 */
   if(sp){
     const back=sp.spread>0;
@@ -2019,7 +2144,9 @@ function applyQuickFill() {
     tldr.push({k:'基差', v:'现货价待补', c:'warn', d:'请在「数据管理」填入现货基准价'});
   }
   if (isFinite(warrant)) {
-    tldr.push({k:'交易所仓单', v: warrant.toLocaleString()+' 张', c:'', d: '约 '+(warrant/10).toFixed(1)+' 万吨'});
+    const wobj = (DATA[code] && DATA[code].inv && DATA[code].inv.warrant) || {};
+    const ww = warrantWan(code, warrant, wobj.unit, wobj.total2);
+    tldr.push({k:'交易所仓单', v: warrant.toLocaleString()+' '+ww.unit, c:'', d: '约 '+ww.wan.toFixed(2)+' 万吨'});
   } else {
     tldr.push({k:'交易所仓单', v:'待补', c:'warn', d:'请在「数据管理」填入仓单总量'});
   }

@@ -1,12 +1,13 @@
 {
   "data_date": "20260916",
-  "generated_at": "2026-09-17T12:21:53",
+  "generated_at": "2026-09-17T12:31:57",
   "warrant": {
     "SR": {
       "exchange": "郑商所",
       "total": 9751,
       "delta": -150,
       "unit": "张",
+      "total2": 9.751,
       "items": [
         {
           "name": "藁城永安",
@@ -60,6 +61,7 @@
       "total": 231,
       "delta": -351,
       "unit": "张",
+      "total2": 0.1155,
       "items": [
         {
           "name": "四三二处",
@@ -161,6 +163,7 @@
       "total": 26,
       "delta": -6,
       "unit": "张",
+      "total2": 0.013,
       "items": [
         {
           "name": "尉氏纺织",
@@ -174,6 +177,7 @@
       "total": 13281,
       "delta": 0,
       "unit": "张",
+      "total2": 13.281,
       "items": [
         {
           "name": "东莞富之源（厂库）",
@@ -215,6 +219,7 @@
       "total": 2897,
       "delta": 0,
       "unit": "张",
+      "total2": 2.897,
       "items": [
         {
           "name": "益海广汉",
@@ -244,6 +249,7 @@
       "total": 27,
       "delta": 0,
       "unit": "张",
+      "total2": 0.027,
       "items": [
         {
           "name": "中粮祥瑞",
@@ -257,6 +263,7 @@
       "total": 0,
       "delta": 0,
       "unit": "张",
+      "total2": 0.0,
       "items": [],
       "source": "czce"
     },
@@ -265,6 +272,7 @@
       "total": 0,
       "delta": 0,
       "unit": "张",
+      "total2": 0.0,
       "items": [],
       "source": "czce"
     },
@@ -273,6 +281,7 @@
       "total": 0,
       "delta": 0,
       "unit": "张",
+      "total2": 0.0,
       "items": [],
       "source": "czce"
     },
@@ -281,6 +290,7 @@
       "total": 0,
       "delta": 0,
       "unit": "张",
+      "total2": 0.0,
       "items": [],
       "source": "czce"
     },
@@ -289,6 +299,7 @@
       "total": 0,
       "delta": 0,
       "unit": "张",
+      "total2": 0.0,
       "items": [],
       "source": "czce"
     },
@@ -297,6 +308,7 @@
       "total": 0,
       "delta": 0,
       "unit": "张",
+      "total2": 0.0,
       "items": [],
       "source": "czce"
     },
@@ -305,6 +317,7 @@
       "total": 791,
       "delta": -882,
       "unit": "张",
+      "total2": 0.3955,
       "items": [
         {
           "name": "新疆叶河源",
@@ -354,6 +367,7 @@
       "total": 0,
       "delta": 0,
       "unit": "张",
+      "total2": 0.0,
       "items": [],
       "source": "czce"
     },
@@ -362,6 +376,7 @@
       "total": 3985,
       "delta": 825,
       "unit": "张",
+      "total2": 3.985,
       "items": [
         {
           "name": "杭实化工（厂库）",
@@ -387,6 +402,7 @@
       "total": 3350,
       "delta": 0,
       "unit": "张",
+      "total2": 6.7,
       "items": [
         {
           "name": "武汉创景（厂库）",
@@ -408,6 +424,7 @@
       "total": 6724,
       "delta": -321,
       "unit": "张",
+      "total2": 3.362,
       "items": [
         {
           "name": "湖北三三八处",
@@ -477,6 +494,7 @@
       "total": 48681,
       "delta": -2565,
       "unit": "张",
+      "total2": 24.3405,
       "items": [
         {
           "name": "湖北三三八处",
@@ -546,6 +564,7 @@
       "total": 4670,
       "delta": -540,
       "unit": "张",
+      "total2": 9.34,
       "items": [
         {
           "name": "濮阳皇甫",
@@ -599,6 +618,7 @@
       "total": 1897,
       "delta": -156,
       "unit": "张",
+      "total2": 3.794,
       "items": [
         {
           "name": "河北一三三处",
@@ -616,6 +636,7 @@
       "total": 1700,
       "delta": -900,
       "unit": "张",
+      "total2": 0.85,
       "items": [
         {
           "name": "国贸石化（厂库）",
@@ -629,6 +650,7 @@
       "total": 1000,
       "delta": 0,
       "unit": "张",
+      "total2": 1.0,
       "items": [
         {
           "name": "金桥化工（厂库）",
@@ -642,6 +664,7 @@
       "total": 91030,
       "delta": -3298,
       "unit": "手",
+      "total2": 9.103,
       "items": [
         {
           "name": "象屿速传上海",
@@ -731,6 +754,7 @@
       "total": 49760,
       "delta": 60,
       "unit": "手",
+      "total2": 14.928,
       "items": [
         {
           "name": "中物流（石河子）",
@@ -852,6 +876,7 @@
       "total": 66880,
       "delta": 0,
       "unit": "手",
+      "total2": 33.44,
       "items": [
         {
           "name": "中储吴淞",
@@ -977,6 +1002,7 @@
       "total": 114843,
       "delta": 0,
       "unit": "张",
+      "total2": 0.0115,
       "items": [],
       "source": "eastmoney"
     },
@@ -985,6 +1011,7 @@
       "total": 1405402,
       "delta": -20534,
       "unit": "张",
+      "total2": 2.1081,
       "items": [],
       "source": "eastmoney"
     },
@@ -993,6 +1020,7 @@
       "total": 32945,
       "delta": 1095,
       "unit": "张",
+      "total2": 16.4725,
       "items": [],
       "source": "eastmoney"
     },
@@ -1001,6 +1029,7 @@
       "total": 195220,
       "delta": -6802,
       "unit": "张",
+      "total2": 97.61,
       "items": [],
       "source": "eastmoney"
     },
@@ -1009,6 +1038,7 @@
       "total": 274195,
       "delta": 2103,
       "unit": "张",
+      "total2": 548.39,
       "items": [],
       "source": "eastmoney"
     },
@@ -1017,6 +1047,7 @@
       "total": 94694,
       "delta": -643,
       "unit": "张",
+      "total2": 9.4694,
       "items": [],
       "source": "eastmoney"
     },
@@ -1025,6 +1056,7 @@
       "total": 5496,
       "delta": -253,
       "unit": "张",
+      "total2": 0.5496,
       "items": [],
       "source": "eastmoney"
     },
@@ -1033,6 +1065,7 @@
       "total": 95033,
       "delta": -954,
       "unit": "张",
+      "total2": 47.5165,
       "items": [],
       "source": "eastmoney"
     },
@@ -1041,6 +1074,7 @@
       "total": 59719,
       "delta": -377,
       "unit": "张",
+      "total2": 29.8595,
       "items": [],
       "source": "eastmoney"
     },
@@ -1049,6 +1083,7 @@
       "total": 86072,
       "delta": -610,
       "unit": "张",
+      "total2": 86.072,
       "items": [],
       "source": "eastmoney"
     },
@@ -1057,6 +1092,7 @@
       "total": 220690,
       "delta": 0,
       "unit": "张",
+      "total2": 220.69,
       "items": [],
       "source": "eastmoney"
     },
@@ -1065,6 +1101,7 @@
       "total": 2660,
       "delta": -70,
       "unit": "张",
+      "total2": 2.66,
       "items": [],
       "source": "eastmoney"
     },
@@ -1073,6 +1110,7 @@
       "total": 10785,
       "delta": 0,
       "unit": "张",
+      "total2": 10.785,
       "items": [],
       "source": "eastmoney"
     },
@@ -1081,6 +1119,7 @@
       "total": 3830,
       "delta": -40,
       "unit": "张",
+      "total2": 1.915,
       "items": [],
       "source": "eastmoney"
     },
@@ -1089,6 +1128,7 @@
       "total": 69272,
       "delta": -646,
       "unit": "张",
+      "total2": 34.636,
       "items": [],
       "source": "eastmoney"
     },
@@ -1097,6 +1137,7 @@
       "total": 418316,
       "delta": 983,
       "unit": "张",
+      "total2": 418.316,
       "items": [],
       "source": "eastmoney"
     }
