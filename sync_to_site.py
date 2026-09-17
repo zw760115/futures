@@ -21,7 +21,8 @@
   - 利润/成本(quad) 不在桌面 JSON 里（是网页手工填的），脚本会保留
     旧 patch.json 中的 quad，不会被基本面数据冲掉。
   - 每个品种取桌面文件夹里 mtime 最新的那份（兼容带日期后缀的副本）。
-  - 推送顺序：直连 → HTTP/1.1 → 走 FlClash 代理（可用 FUTURES_PUSH_PROXY 覆盖代理地址）。
+  - 推送顺序：直连（清掉继承的代理变量）→ 直连 HTTP/1.1 → 自动探测到的本地代理
+    （macOS 系统代理 / FlClash 混合端口 7890 等）。
   - 产业利润快照取 Desktop 与 Downloads 两份中 mtime 最新的一份。
 """
 import os, re, sys, json, glob, time, shutil, base64, subprocess
@@ -32,7 +33,6 @@ DL_DIR = os.path.expanduser('~/Downloads/期货研究数据')
 PATCH_PATH = os.path.join(REPO, 'data', 'patch.json')
 SNAP_OUT = os.path.join(REPO, 'data', 'profit_snapshot.json')
 SNAP_NAME = '产业利润快照.json'
-DEFAULT_PROXY = os.environ.get('FUTURES_PUSH_PROXY', 'http://127.0.0.1:51953')
 
 # 模板内嵌的全部品种 CODE（与 index.html DATA 顶层键一致）
 CODES = set("""A AG AL AP AU B BB BR BU C CF CJ CS CU CY EB EG FB FG FU HC I J JD
@@ -100,11 +100,49 @@ def _gh_token():
     r = subprocess.run([gh, 'auth', 'token'], capture_output=True, text=True)
     return r.stdout.strip() if r.returncode == 0 and r.stdout.strip() else None
 
+PROXY_ENV_KEYS = ('http_proxy', 'https_proxy', 'all_proxy', 'HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY')
+
+def _clean_env(proxy=None):
+    """基于干净环境构造子进程 env：先剔除继承来的代理变量（沙箱/IDE 可能注入一个连不通的代理，
+    会让 git 直连 GitHub 报 'CONNECT tunnel failed, response 502'），再按需设置指定代理。"""
+    e = dict(os.environ)
+    for k in PROXY_ENV_KEYS:
+        e.pop(k, None)
+    if proxy:
+        for k in PROXY_ENV_KEYS[:3] + PROXY_ENV_KEYS[3:6]:
+            e[k] = proxy
+    return e
+
+def _detect_proxies():
+    """本地可用代理候选：先读 macOS 系统代理（FlClash 开启时会写 127.0.0.1:7890），
+    再补常见混合端口，最后只保留真的能建连的。"""
+    cands = []
+    try:
+        r = subprocess.run(['scutil', '--proxy'], capture_output=True, text=True)
+        ip = re.search(r'HTTPProxy\s*:\s*(\S+)', r.stdout)
+        port = re.search(r'HTTPPort\s*:\s*(\d+)', r.stdout)
+        if ip and port:
+            cands.append(f'http://{ip.group(1)}:{port.group(1)}')
+    except Exception:
+        pass
+    for p in (7890, 7891, 7897, 10809, 10808, 1080):
+        u = f'http://127.0.0.1:{p}'
+        if u not in cands:
+            cands.append(u)
+    ok = []
+    for u in cands:
+        host, port = u.replace('http://', '').split(':')
+        try:
+            import socket
+            with socket.create_connection((host, int(port)), timeout=0.8):
+                ok.append(u)
+        except Exception:
+            pass
+    return ok
+
 def _try_push(auth_header, cfg, env, label):
     cmd = ['git'] + cfg + ['-c', 'http.extraHeader=' + auth_header, 'push', 'origin', 'main']
-    e = dict(os.environ)
-    e.update(env or {})
-    r = subprocess.run(cmd, capture_output=True, text=True, env=e)
+    r = subprocess.run(cmd, capture_output=True, text=True, env=env)
     if r.returncode == 0:
         print(f'  ✓ 推送成功（{label}）')
         return True
@@ -162,14 +200,19 @@ def push():
         sys.exit(1)
     auth = 'Basic ' + base64.b64encode(('x:' + token).encode()).decode()
 
-    if (_try_push(auth, [], None, '直连')
-            or _try_push(auth, ['-c', 'http.version=HTTP/1.1'], None, 'HTTP/1.1')
-            or _try_push(auth, ['-c', 'http.version=HTTP/1.1'],
-                         {'HTTPS_PROXY': DEFAULT_PROXY, 'HTTP_PROXY': DEFAULT_PROXY},
-                         'FlClash 代理 ' + DEFAULT_PROXY)):
+    # 尝试顺序：干净环境直连 → 干净环境直连(HTTP/1.1) → 各可用本地代理
+    if _try_push(auth, [], _clean_env(), '直连'):
         print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
         return
-    print('✗ 推送失败（网络/代理问题）。可检查 FlClash 后重试：python3 sync_to_site.py --push')
+    if _try_push(auth, ['-c', 'http.version=HTTP/1.1'], _clean_env(), '直连 HTTP/1.1'):
+        print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
+        return
+    for proxy in _detect_proxies():
+        if _try_push(auth, ['-c', 'http.version=HTTP/1.1'], _clean_env(proxy), '代理 ' + proxy):
+            print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
+            return
+    print('✗ 推送失败（网络/代理问题）。请确认 FlClash 已开启并选好节点，再重试：'
+          'python3 sync_to_site.py --push')
     sys.exit(1)
 
 def main():
