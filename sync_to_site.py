@@ -140,20 +140,70 @@ def _detect_proxies():
             pass
     return ok
 
+PUSH_TIMEOUT = 90          # 单条通道最长等待（秒）——超时即换下一条，避免整体卡死
+GITHUB_HOST, GITHUB_PORT = 'github.com', 443
+
+def _tcp_reachable(host=GITHUB_HOST, port=GITHUB_PORT, timeout=3.0):
+    """timeout 秒内能否与 github.com:443 建立 TCP 连接。
+    国内直连被墙时 SYN 会一直挂着（SYN_SENT），没有这一步就会在「直连」上白等几分钟，
+    永远走不到后面的代理兜底 —— 这是脚本卡在「同步并推送」的根因。"""
+    import socket
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except Exception:
+        return False
+
+def _proxy_reaches_github(u, timeout=4.0):
+    """代理端口开着 ≠ 能出去：用 HTTP CONNECT 探一下能否到达 github.com:443。
+    （沙箱/IDE 常注入一个「开着但连不通」的代理端口，这一步能把它提前筛掉）"""
+    import socket
+    try:
+        host, port = u.replace('http://', '').split(':')
+        s = socket.create_connection((host, int(port)), timeout=timeout)
+        s.sendall(b'CONNECT github.com:443 HTTP/1.1\r\nHost: github.com:443\r\n\r\n')
+        s.settimeout(timeout)
+        head = s.recv(64).split(b'\r\n')[0]
+        s.close()
+        return b' 200' in head
+    except Exception:
+        return False
+
 def _try_push(token, cfg, env, label):
-    """用临时 credential.helper 供上 token（token 走环境变量，不进 argv、不留盘）。"""
+    """用临时 credential.helper 供上 token（token 走环境变量，不进 argv、不留盘）。
+    带硬超时：超时后连本通道的 git-remote-https 一起杀掉（否则会留一堆僵尸进程）。"""
     e = dict(env)
     e['GH_TOKEN'] = token
     e['GIT_TERMINAL_PROMPT'] = '0'
     cmd = (['git'] + cfg
            + ['-c', 'credential.helper=',                                   # 先清掉继承的 osxkeychain
               '-c', 'credential.helper=!f(){ echo username=x; echo password=$GH_TOKEN; };f',
+              '-c', 'http.lowSpeedLimit=1000', '-c', 'http.lowSpeedTime=20',  # 传输停滞 20s 即放弃
               'push', 'origin', 'main'])
-    r = subprocess.run(cmd, capture_output=True, text=True, env=e)
-    if r.returncode == 0:
+    try:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             text=True, env=e, start_new_session=True)
+    except Exception as ex:
+        print(f'  ✗ {label} 无法执行：{ex}')
+        return False
+    try:
+        out, err = p.communicate(timeout=PUSH_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        import signal
+        try:
+            os.killpg(os.getpgid(p.pid), signal.SIGKILL)   # 连子进程 git-remote-https 一起收掉
+        except Exception:
+            p.kill()
+        try:
+            p.communicate(timeout=5)
+        except Exception:
+            pass
+        print(f'  ✗ {label} 超时（{PUSH_TIMEOUT}s 未完成），换下一个通道')
+        return False
+    if p.returncode == 0:
         print(f'  ✓ 推送成功（{label}）')
         return True
-    tail = (r.stderr or r.stdout or '').strip().splitlines()
+    tail = (err or out or '').strip().splitlines()
     print(f'  ✗ {label} 失败：{tail[-1] if tail else "未知错误"}')
     return False
 
@@ -205,14 +255,22 @@ def push():
     if not token:
         print('✗ 未取到 GitHub token（~/bin/gh auth token 失败），无法推送')
         sys.exit(1)
-    # 尝试顺序：干净环境直连 → 干净环境直连(HTTP/1.1) → 各可用本地代理
-    if _try_push(token, [], _clean_env(), '直连'):
-        print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
-        return
-    if _try_push(token, ['-c', 'http.version=HTTP/1.1'], _clean_env(), '直连 HTTP/1.1'):
-        print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
-        return
-    for proxy in _detect_proxies():
+    # 尝试顺序：能直连才试直连 → 否则直接走本地代理（避免在被墙的直连上白等）
+    direct_ok = _tcp_reachable()
+    if direct_ok:
+        if _try_push(token, [], _clean_env(), '直连'):
+            print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
+            return
+        if _try_push(token, ['-c', 'http.version=HTTP/1.1'], _clean_env(), '直连 HTTP/1.1'):
+            print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
+            return
+    else:
+        print('  · 3s 探测：github.com:443 直连不通（大陆网络常见），跳过直连直接走代理')
+
+    proxies = [u for u in _detect_proxies() if _proxy_reaches_github(u)]
+    if not proxies:
+        print('  · 未找到能到达 GitHub 的本地代理（FlClash 是否已开启并选好节点？）')
+    for proxy in proxies:
         if _try_push(token, ['-c', 'http.version=HTTP/1.1'], _clean_env(proxy), '代理 ' + proxy):
             print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
             return
