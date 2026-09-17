@@ -59,6 +59,17 @@ def main():
             print('  已写入：%s' % os.path.join(d, getattr(mod, 'MF_SNAP_NAME', '资金流向快照.json')))
         notify.write_status('moneyflow', ok=True, asof=out.get('asof'),
                             count=out.get('count'), fetch_time=out.get('fetch_time'))
+        # 根治：抓取成功后自动同步并推送到网站，网页「同步时间戳」即时更新，徽标保持常绿
+        try:
+            import sync_to_site
+            res = sync_to_site.sync_push()
+            if res == 'pushed':
+                print('✓ 抓取后已自动推送网站（网页同步时间已更新，徽标回绿）')
+            elif res == 'skip':
+                print('（无改动，未推送）')
+        except Exception as e:
+            # 抓取本身已成功；推送失败不覆盖 moneyflow 成功状态，仅提示
+            print('⚠ 自动推送网站失败（抓取已成功，数据在本地）：%s' % e)
         return 0
     except Exception as e:
         reason = '资金流向脚本异常：%s' % e

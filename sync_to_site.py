@@ -332,11 +332,12 @@ def push():
           'python3 sync_to_site.py --push')
     sys.exit(1)
 
-def main():
-    push_flag = '--push' in sys.argv
+def export_all():
+    """重建 data/ 下全部远程种子（patch.json / profit_snapshot.json / moneyflow.json / update_status.json）。
+    不改 git / 不推送，供其它脚本（如 fetch_moneyflow.py）在抓取成功后复用。"""
     if not os.path.isdir(DESK_DIR):
         print(f'✗ 桌面数据目录不存在: {DESK_DIR}')
-        sys.exit(1)
+        return False
 
     # 读旧 patch，保留 quad（利润/成本）
     old_patch = {}
@@ -372,14 +373,17 @@ def main():
     # 资金流向快照 → 网站同源副本（线上版「当日资金流向」折叠条的数据通道）
     export_moneyflow_snapshot()
     export_update_status()
+    return True
 
-    if not push_flag:
-        print('\n（未推送。要上线加 --push：python3 sync_to_site.py --push）')
-        notify.write_status('sync', ok=True, pushed='skip')
-        return
+
+def sync_push():
+    """导出全部远程种子并提交 + 推送 GitHub（供抓取脚本成功后「抓完即推」，根治网页同步时间戳滞后）。
+    返回 'pushed' / 'skip' / 抛异常（失败）；失败会发系统通知 + 写 sync 状态，由调用方决定是否吞掉。"""
+    export_all()
     try:
         res = push()
         notify.write_status('sync', ok=True, pushed=(res == 'pushed'))
+        return res
     except SystemExit:
         # 子函数以 sys.exit(1) 表达失败（如推送 / token 失败）→ 已打印原因，补通知 + 状态
         notify.notify('❌ 网页同步/推送失败', '见终端日志：FlClash 是否开启？网络是否可用？', ok=False)
@@ -390,6 +394,17 @@ def main():
         notify.write_status('sync', ok=False, error=str(e)[:300])
         print('✗ 同步异常：', e)
         raise
+
+
+def main():
+    push_flag = '--push' in sys.argv
+    if not push_flag:
+        export_all()
+        print('\n（未推送。要上线加 --push：python3 sync_to_site.py --push）')
+        notify.write_status('sync', ok=True, pushed='skip')
+        return
+    # push 模式：export + push 一次完成（sync_push 内部自带 export_all，避免重复生成）
+    sync_push()
 
 if __name__ == '__main__':
     main()
