@@ -1624,13 +1624,15 @@ function qSpread(d){
      库存水位 40（越低越偏多） + 库存趋势 20（去库偏多/累库偏空）
      + 基差分位 25（期货贴水偏多/升水偏空） + 利润档位 15（低利润偏多/高利润偏空）
      + 期限结构 10（Back 偏多/Contango 偏空）；按可得项权重归一化，覆盖度 <40% 的品种不入榜。 */
-/* 取全量 DATA 中最新的 data_date，用于统计栏「数据截至」时效徽标；
+/* 取全量 DATA 中「最新刷新日」用于统计栏「数据截至」时效徽标。
+   同时纳入 data_date（基本面人工整理日）与 term_date（期限结构自动刷新日），取两者最新；
    无数据则 date=null；距今天数 > 7 标 stale=true（提示可能过旧）。 */
 function latestDataDate(){
   let best = null;
   for (const k in DATA) {
-    const dt = DATA[k] && DATA[k].data_date;
-    if (dt && typeof dt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dt)) {
+    const d = DATA[k]; if (!d) continue;
+    const cands = [d.data_date, d.term_date].filter(x => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x));
+    for (const dt of cands) {
       if (!best || dt > best) best = dt;
     }
   }
@@ -2221,7 +2223,10 @@ function render() {
   const d = DATA[code];
   const has = !!(d && (d.term || d.basis || d.inv || d.drivers));
   document.getElementById('hd-title').textContent = meta[0]+' '+meta[1]+'（'+meta[2]+'）库存 · 基差 · 期限结构';
-  document.getElementById('hd-meta').textContent = '数据时点：'+(d&&d.data_date?d.data_date:'数据待补')+' · 交易所：'+meta[2]+' · 类别：'+meta[3];
+  const dd = (d && d.data_date) ? d.data_date : '数据待补';
+  const td = (d && d.term_date) ? d.term_date : null;
+  document.getElementById('hd-meta').textContent =
+    '数据时点：' + dd + (td ? ('（基本面）/ 期限结构 ' + td + '（自动）') : '') + ' · 交易所：' + meta[2] + ' · 类别：' + meta[3];
   const dot = document.querySelector('#status .dot');
   const txt = document.getElementById('status-txt');
   if (has) { dot.className='dot'; txt.textContent='已加载 '+code+' 数据'; }
