@@ -175,6 +175,10 @@ td:first-child,th:first-child{text-align:left;}
 .mflow[open]>summary .mf-arrow{transform:rotate(90deg);}
 .mflow>summary:hover{background:#f7f9fc;}
 .mflow .mf-hint{font-size:11.5px;font-weight:400;color:var(--sub);}
+.mflow>summary .mf-status{font-size:11px;font-weight:400;margin-left:auto;padding:1px 8px;border-radius:10px;white-space:nowrap;}
+.mflow .mf-status.good{color:#1a7f37;background:rgba(26,127,55,.10);}
+.mflow .mf-status.bad{color:#b42318;background:rgba(180,35,24,.10);}
+.mflow .mf-status.unknown{color:var(--sub);background:#f0f2f5;}
 .mflow .mf-body{padding:0 16px 13px;}
 .mflow .mf-cols{display:flex;gap:14px;flex-wrap:wrap;}
 .mflow .mf-col{flex:1 1 300px;min-width:260px;background:#fbfcfe;border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
@@ -1676,7 +1680,8 @@ function mfYi(v){
 function mflowShell(){
   return '<details class="mflow" id="mflow">'
     + '<summary><span class="mf-arrow">▶</span>💰 当日资金流向 · 主力净流入'
-    + '<span class="mf-hint" id="mflow-hint">加载中…</span></summary>'
+    + '<span class="mf-hint" id="mflow-hint">加载中…</span>'
+    + '<span class="mf-status unknown" id="mf-status">状态未知</span></summary>'
     + '<div class="mf-body" id="mflow-body"><div class="st-empty">正在获取资金流向…</div></div>'
     + '</details>';
 }
@@ -1739,6 +1744,32 @@ async function hydrateMoneyFlow(){
     + col('📉 净流出 TOP5', outflow, 'out')
     + '</div>'
     + '<div class="mf-note">口径：<b>主力资金净流入（估算）= 当日成交额 × 收盘位置系数</b>，系数 = 2×(收盘−最低)/(最高−最低) − 1（收在当日区间上沿记净流入、下沿记净流出；振幅为 0 时按涨跌方向定号），属盘面强弱估算，<b>非交易所口径的持仓资金变动</b>，量级与成交额同阶。<br/>数据时点 ' + esc(j.fetch_time || j.asof || '') + ' · 来源 ' + esc(j.source || '') + ' · 覆盖 ' + (j.count || rows.length) + ' 个品种（展开各显示 5 名）。点击品种可跳转详情。</div>';
+}
+
+function fmtStatusDT(s){
+  if (!s) return '';
+  var m = String(s).match(/(\d{2})-(\d{2}) (\d{2}:\d{2})/);
+  return m ? (m[1] + '-' + m[2] + ' ' + m[3]) : s;
+}
+async function loadUpdateStatus(){
+  var el = document.getElementById('mf-status');
+  try {
+    var r = await tryFetch('data/update_status.json?_=' + Date.now(), null, 12000);
+    if (!r || !r.ok) { if (el) { el.textContent = '状态未知'; el.className = 'mf-status unknown'; } return; }
+    var j = await r.json();
+    var mf = j.moneyflow || {}, sy = j.sync || {};
+    var parts = [];
+    if (mf.last_run) parts.push('资金流向 ' + fmtStatusDT(mf.last_success || mf.last_run) + (mf.status === 'fail' ? ' ⚠失败' : ' ✓'));
+    if (sy.last_run) parts.push('网页同步 ' + fmtStatusDT(sy.last_success || sy.last_run) + (sy.status === 'fail' ? ' ⚠未同步' : ((sy.pushed === false || sy.pushed === 'skip') ? ' (仅本地)' : ' ✓')));
+    if (el) {
+      if (!parts.length) { el.textContent = '状态未知'; el.className = 'mf-status unknown'; }
+      else {
+        el.textContent = parts.join(' · ');
+        el.className = 'mf-status ' + ((mf.status === 'fail' || sy.status === 'fail') ? 'bad' : 'good');
+        el.title = '资金流向: ' + (mf.status || '?') + (mf.error ? (' · ' + mf.error) : '') + '\n网页同步: ' + (sy.status || '?') + (sy.error ? (' · ' + sy.error) : '');
+      }
+    }
+  } catch (e) { if (el) { el.textContent = '状态未知'; el.className = 'mf-status unknown'; } }
 }
 
 function buildStatsBar(){
@@ -2179,6 +2210,7 @@ function render() {
   html += '<div class="disclaimer"><b>免责声明</b>：以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。</div>';
   document.getElementById('rpt').innerHTML = html;
   hydrateMoneyFlow();        // 异步填充资金流向折叠条（失败不影响主渲染）
+  loadUpdateStatus();        // 异步填充「资金流向 / 网页同步」更新状态徽标
   window.scrollTo({top:0,behavior:'smooth'});
 }
 

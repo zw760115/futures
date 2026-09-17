@@ -11,9 +11,19 @@
         ~/Desktop/期货研究数据/资金流向快照.json
         ~/Downloads/期货研究数据/资金流向快照.json
 
+失败告警：抓不到行情 / 脚本异常时，除打印原因，还会
+        (1) 弹 macOS 系统通知（notify.notify）
+        (2) 写 ~/Desktop/期货研究数据/快照更新状态.json（moneyflow 段）
+      网页版据此显示「资金流向 更新状态」，用户打开即知有没有更新、失败原因。
+
 用法：python3 fetch_moneyflow.py
 """
-import os, sys, json, importlib.util
+import os, sys, json, importlib.util, traceback
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+import notify
 
 TPL_DIR = os.path.expanduser('~/Desktop/期货模板')
 SERVICE = os.path.join(TPL_DIR, '期货行情服务.py')
@@ -29,21 +39,34 @@ def load_service():
 
 
 def main():
-    mod = load_service()
-    out = mod.build_moneyflow()
-    rows = out.get('rows') or []
-    if not rows:
-        print('✗ 未取到资金流向数据（行情源不可用？）asof=%s' % out.get('asof'))
+    try:
+        mod = load_service()
+        out = mod.build_moneyflow()
+        rows = out.get('rows') or []
+        if not rows:
+            reason = '未取到资金流向数据（行情源不可用？）asof=%s' % out.get('asof')
+            notify.notify('❌ 资金流向刷新失败', reason, ok=False)
+            notify.write_status('moneyflow', ok=False, error=reason, asof=out.get('asof'), count=0)
+            print('✗ ' + reason)
+            return 1
+        inflow = [r for r in rows if r['net'] > 0][:3]
+        outflow = [r for r in rows if r['net'] < 0][-3:][::-1]
+        print('✓ 资金流向已刷新：asof %s · fetch %s · %d 个品种'
+              % (out.get('asof'), out.get('fetch_time'), out.get('count')))
+        print('  净流入前三：' + ' · '.join('%s %+.2f亿' % (r['code'], r['net'] / 1e8) for r in inflow))
+        print('  净流出前三：' + ' · '.join('%s %+.2f亿' % (r['code'], r['net'] / 1e8) for r in outflow))
+        for d in getattr(mod, 'MF_SNAP_DIRS', []):
+            print('  已写入：%s' % os.path.join(d, getattr(mod, 'MF_SNAP_NAME', '资金流向快照.json')))
+        notify.write_status('moneyflow', ok=True, asof=out.get('asof'),
+                            count=out.get('count'), fetch_time=out.get('fetch_time'))
+        return 0
+    except Exception as e:
+        reason = '资金流向脚本异常：%s' % e
+        notify.notify('❌ 资金流向刷新失败', reason, ok=False)
+        notify.write_status('moneyflow', ok=False, error=reason)
+        print('✗ ' + reason)
+        traceback.print_exc()
         return 1
-    inflow = [r for r in rows if r['net'] > 0][:3]
-    outflow = [r for r in rows if r['net'] < 0][-3:][::-1]
-    print('✓ 资金流向已刷新：asof %s · fetch %s · %d 个品种'
-          % (out.get('asof'), out.get('fetch_time'), out.get('count')))
-    print('  净流入前三：' + ' · '.join('%s %+.2f亿' % (r['code'], r['net'] / 1e8) for r in inflow))
-    print('  净流出前三：' + ' · '.join('%s %+.2f亿' % (r['code'], r['net'] / 1e8) for r in outflow))
-    for d in getattr(mod, 'MF_SNAP_DIRS', []):
-        print('  已写入：%s' % os.path.join(d, getattr(mod, 'MF_SNAP_NAME', '资金流向快照.json')))
-    return 0
 
 
 if __name__ == '__main__':

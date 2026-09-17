@@ -30,7 +30,13 @@
 """
 import os, re, sys, json, glob, time, shutil, subprocess
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+import notify  # 失败告警 + 更新状态（notify.py 同目录，写入 ~/Desktop/期货研究数据/快照更新状态.json）
+
 REPO = os.path.dirname(os.path.abspath(__file__))
+UPD_OUT = os.path.join(REPO, 'data', 'update_status.json')
 DESK_DIR = os.path.expanduser('~/Desktop/期货研究数据')
 DL_DIR = os.path.expanduser('~/Downloads/期货研究数据')
 PATCH_PATH = os.path.join(REPO, 'data', 'patch.json')
@@ -120,6 +126,23 @@ def export_moneyflow_snapshot():
         json.dump(snap, f, ensure_ascii=False, indent=1)
         f.write('\n')
     print(f'✓ 已生成 data/moneyflow.json（源：{src}；asof {snap.get("asof")}，{len(rows)} 个品种）')
+    return True
+
+def export_update_status():
+    """把 ~/Desktop/期货研究数据/快照更新状态.json 复制为网站同源副本 data/update_status.json，
+    网页版据此显示「资金流向 / 网页同步」是否更新成功（失败含原因）。"""
+    if not os.path.isfile(notify.STATUS_PATH):
+        return False
+    try:
+        data = json.load(open(notify.STATUS_PATH, encoding='utf-8'))
+    except Exception as e:
+        print(f'  ⚠ 更新状态文件解析失败：{e}，跳过')
+        return False
+    os.makedirs(os.path.dirname(UPD_OUT), exist_ok=True)
+    with open(UPD_OUT, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=1)
+        f.write('\n')
+    print('✓ 已生成 data/update_status.json（资金流向/同步更新状态）')
     return True
 
 def _gh_token():
@@ -276,7 +299,7 @@ def push():
     _git('add', '-A')
     if _git('diff', '--cached', '--quiet', check=False).returncode == 0:
         print('（无改动，跳过提交与推送）')
-        return
+        return 'skip'
     msg = 'sync: 研究数据 + 利润快照同步到网站 (%s)' % time.strftime('%Y-%m-%d %H:%M')
     _git('-c', 'user.name=WorkBuddy', '-c', 'user.email=noreply@workbuddy.local',
          'commit', '-q', '-m', msg)
@@ -291,10 +314,10 @@ def push():
     if direct_ok:
         if _try_push(token, [], _clean_env(), '直连'):
             print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
-            return
+            return 'pushed'
         if _try_push(token, ['-c', 'http.version=HTTP/1.1'], _clean_env(), '直连 HTTP/1.1'):
             print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
-            return
+            return 'pushed'
     else:
         print('  · 3s 探测：github.com:443 直连不通（大陆网络常见），跳过直连直接走代理')
 
@@ -304,7 +327,7 @@ def push():
     for proxy in proxies:
         if _try_push(token, ['-c', 'http.version=HTTP/1.1'], _clean_env(proxy), '代理 ' + proxy):
             print('✓ 已推送到 GitHub，约 1–5 分钟后网页打开即最新')
-            return
+            return 'pushed'
     print('✗ 推送失败（网络/代理问题）。请确认 FlClash 已开启并选好节点，再重试：'
           'python3 sync_to_site.py --push')
     sys.exit(1)
@@ -348,11 +371,25 @@ def main():
 
     # 资金流向快照 → 网站同源副本（线上版「当日资金流向」折叠条的数据通道）
     export_moneyflow_snapshot()
+    export_update_status()
 
     if not push_flag:
         print('\n（未推送。要上线加 --push：python3 sync_to_site.py --push）')
+        notify.write_status('sync', ok=True, pushed='skip')
         return
-    push()
+    try:
+        res = push()
+        notify.write_status('sync', ok=True, pushed=(res == 'pushed'))
+    except SystemExit:
+        # 子函数以 sys.exit(1) 表达失败（如推送 / token 失败）→ 已打印原因，补通知 + 状态
+        notify.notify('❌ 网页同步/推送失败', '见终端日志：FlClash 是否开启？网络是否可用？', ok=False)
+        notify.write_status('sync', ok=False, error='同步/推送失败（见终端日志），最可能是 FlClash 未开启或网络不通')
+        raise
+    except Exception as e:
+        notify.notify('❌ 网页同步异常', str(e)[:200], ok=False)
+        notify.write_status('sync', ok=False, error=str(e)[:300])
+        print('✗ 同步异常：', e)
+        raise
 
 if __name__ == '__main__':
     main()
