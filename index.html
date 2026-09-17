@@ -1753,23 +1753,40 @@ function fmtStatusDT(s){
 }
 async function loadUpdateStatus(){
   var el = document.getElementById('mf-status');
+  var setU = function(t,c,tip){ if (el){ el.textContent = t; el.className = 'mf-status ' + c; if (tip) el.title = tip; } };
+  var isHttp = (location.protocol === 'http:' || location.protocol === 'https:');
+  var isLoop = isHttp && /^https?:\/\/(127\.0\.0\.1|localhost)/.test(location.href);
+  // 候选状态源（按序尝试）：本地服务托管时问本服务；双击打开(file://)时问本机行情服务；最后同目录 data/
+  var cands = [];
+  if (isLoop) cands.push('/api/update_status');
+  if (!isHttp) cands.push('http://127.0.0.1:8766/api/update_status');
+  cands.push('data/update_status.json');
+  var srvDown = false;
   try {
-    var r = await tryFetch('data/update_status.json?_=' + Date.now(), null, 12000);
-    if (!r || !r.ok) { if (el) { el.textContent = '状态未知'; el.className = 'mf-status unknown'; } return; }
-    var j = await r.json();
-    var mf = j.moneyflow || {}, sy = j.sync || {};
-    var parts = [];
-    if (mf.last_run) parts.push('资金流向 ' + fmtStatusDT(mf.last_success || mf.last_run) + (mf.status === 'fail' ? ' ⚠失败' : ' ✓'));
-    if (sy.last_run) parts.push('网页同步 ' + fmtStatusDT(sy.last_success || sy.last_run) + (sy.status === 'fail' ? ' ⚠未同步' : ((sy.pushed === false || sy.pushed === 'skip') ? ' (仅本地)' : ' ✓')));
-    if (el) {
-      if (!parts.length) { el.textContent = '状态未知'; el.className = 'mf-status unknown'; }
-      else {
-        el.textContent = parts.join(' · ');
-        el.className = 'mf-status ' + ((mf.status === 'fail' || sy.status === 'fail') ? 'bad' : 'good');
-        el.title = '资金流向: ' + (mf.status || '?') + (mf.error ? (' · ' + mf.error) : '') + '\n网页同步: ' + (sy.status || '?') + (sy.error ? (' · ' + sy.error) : '');
+    var r = null;
+    for (var i = 0; i < cands.length; i++) {
+      try {
+        r = await tryFetch(cands[i] + '?_=' + Date.now(), null, 12000);
+      } catch (e1) {
+        if (cands[i].indexOf('/api/update_status') > -1) srvDown = true;  // 本地服务打不通
+        r = null;
+      }
+      if (r && r.ok) {
+        var j = await r.json();
+        var st = (j && j.status) ? j.status : (j || {});
+        var mf = st.moneyflow || {}, sy = st.sync || {};
+        var parts = [];
+        if (mf.last_run) parts.push('资金流向 ' + fmtStatusDT(mf.last_success || mf.last_run) + (mf.status === 'fail' ? ' ⚠失败' : ' ✓'));
+        if (sy.last_run) parts.push('网页同步 ' + fmtStatusDT(sy.last_success || sy.last_run) + (sy.status === 'fail' ? ' ⚠未同步' : ((sy.pushed === false || sy.pushed === 'skip') ? ' (仅本地)' : ' ✓')));
+        if (!parts.length) { setU('状态未知','unknown'); return; }
+        setU(parts.join(' · '), ((mf.status === 'fail' || sy.status === 'fail') ? 'bad' : 'good'),
+          '资金流向: ' + (mf.status || '?') + (mf.error ? (' · ' + mf.error) : '') + '\n网页同步: ' + (sy.status || '?') + (sy.error ? (' · ' + sy.error) : ''));
+        return;
       }
     }
-  } catch (e) { if (el) { el.textContent = '状态未知'; el.className = 'mf-status unknown'; } }
+    if (srvDown) setU('本地服务未运行','unknown','双击「启动期货行情服务.command」后刷新本页，即可看到更新状态');
+    else setU('状态未知','unknown','未读到快照更新状态（data/update_status.json）');
+  } catch (e) { setU('状态未知','unknown'); }
 }
 
 function buildStatsBar(){
