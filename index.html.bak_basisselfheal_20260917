@@ -504,8 +504,6 @@ try {
       if (saved[k].tldr) DATA[k].tldr = saved[k].tldr;
     }
   }
-  /* 自愈②：自动测算品种的「基差」概要文案，用同一口径重写（外部源文案可能与修正后的符号不符） */
-  for (const k in DATA) syncBasisAuto(k, DATA[k]);
 } catch(e) {}
 
 /* === 远程种子合并（GitHub Pages 打开即带最新数据）===
@@ -678,7 +676,6 @@ applyProfitSeed();
 function updateAutoTldr(code) {
   const d = DATA[code]; if (!d || !Array.isArray(d.tldr)) return;
   const b = d.basis;
-  normBasisAuto(b);   /* 自愈：外部源写反符号时先纠正，再生成概要卡片 */
   if (b && b.basis != null) {
     d.tldr = d.tldr.filter(function(t){ return t.k !== '基差'; });
     const txt = (b.basis >= 0 ? '期货贴水 +' : '期货升水 ') + Math.abs(b.basis);
@@ -1234,58 +1231,7 @@ function qBasisVal(x){
   return qNum(x);
 }
 /* 取主力合约口径基差（基差 = 现货 − 期货） */
-/* ===== 基差符号自愈 =====
-   模板全局口径：基差 = 现货 − 主力期货（qEstBasisPct 中 rate=val/spot，rate>0 → 高分位=深贴水）。
-   但 akshare 等外部源可能把符号写成「期货 − 现货」，导致：
-     ① TL;DR 卡片把「期货贴水」显示成「期货升水」；② 基差分位整体反向，影响排行榜与多空判定。
-   只要 spot 与 dominant_price 齐全，就用 现货 − 主力 重算（幂等：纠正后再次调用不会重复扣减）。
-   若两者既非同号也非反号（口径不同的跨品种价差行等），一律不动。 */
-function normBasisAuto(b){
-  if (!b || b.spot == null || b.dominant_price == null) return b;
-  const real = b.spot - b.dominant_price;
-  const same = (b.basis != null) && Math.abs(b.basis - real) < 1e-9;
-  const flip = (b.basis != null) && Math.abs(b.basis + real) < 1e-9;
-  if (same || b.basis == null || !flip) {
-    if (b.basis == null && Math.abs(real) > 1e-9) {   /* 缺值但能算 → 补上 */
-      b.basis = real;
-      if (b.spot) b.basis_rate = Math.round(real / b.spot * 1e5) / 1e5;
-      b._signFixed = true;
-    }
-    return b;
-  }
-  const old = b.basis;
-  b.basis = real;
-  if (b.spot) b.basis_rate = Math.round(real / b.spot * 1e5) / 1e5;
-  (b.rows || []).forEach(function(r){
-    if (r && r.length > 3 && typeof r[3] === 'number' && Math.abs(r[3] - old) < 1e-9) r[3] = real;
-  });
-  b._signFixed = true;
-  return b;
-}
-
-/* 自动测算品种的概要卡片同步：按纠正后的 basis 重写 tldr 里的「基差」卡文案。
-   外部源（akshare）会按它自己（写反）的符号生成「期货升水/贴水」文案并落盘到数据文件，
-   这里以 spot / dominant_price 为准重算，只处理 basis.auto === true 的品种；
-   人工填写口径（如 EC 的 SCFIS/CCFI）不含 auto 标志，一律不碰。 */
-function syncBasisAuto(code, d){
-  if (!d || !d.basis || !Array.isArray(d.tldr)) return false;
-  const b = d.basis;
-  if (b.basis == null || b.spot == null || b.dominant_price == null) return false;
-  const real = b.spot - b.dominant_price;
-  /* 铁证：basis 与「现货 − 主力」明显反号 → 判定为外部源写反（不依赖 auto 标志） */
-  const flipped = Math.abs(real) > 1e-9 && Math.abs(b.basis + real) < 1e-9;
-  normBasisAuto(b);
-  if (!flipped) return false;      /* 没写反就不动文案：人工口径（如 EC 的 SCFIS）保持原样 */
-  const txt = (b.basis >= 0 ? '期货贴水 +' : '期货升水 ') + Math.abs(b.basis);
-  let changed = false;
-  d.tldr.forEach(function(t){
-    if (t && t.k === '基差' && t.v !== txt) { t.v = txt; changed = true; }
-  });
-  return changed;
-}
-
 function qPickBasis(d, code){
-  normBasisAuto(d && d.basis);   /* 读取前先纠正外部源可能写反的符号 */
   const rows=(d.basis&&d.basis.rows)||[]; if(!rows.length) return null;
   const labels=(d.term&&d.term.labels)||[]; const mi=(d.term&&d.term.main_idx!=null)?d.term.main_idx:null;
   const main = mi!=null ? String(labels[mi]||'').toUpperCase() : '';
