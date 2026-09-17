@@ -167,32 +167,6 @@ td:first-child,th:first-child{text-align:left;}
 .stats-top .st-note{font-size:11px;color:#9aa4b2;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.6;}
 .stats-top .st-empty{font-size:12px;color:var(--sub);padding:6px 0;}
 
-/* ===== 💰 当日资金流向（可折叠条，默认收起不占版面）===== */
-.mflow{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;margin:16px 0 0;box-shadow:0 2px 10px rgba(44,62,80,.05);}
-.mflow>summary{cursor:pointer;list-style:none;padding:11px 16px;font-size:13px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap;user-select:none;}
-.mflow>summary::-webkit-details-marker{display:none;}
-.mflow>summary .mf-arrow{color:var(--sub);font-size:10px;transition:transform .18s;display:inline-block;}
-.mflow[open]>summary .mf-arrow{transform:rotate(90deg);}
-.mflow>summary:hover{background:#f7f9fc;}
-.mflow .mf-hint{font-size:11.5px;font-weight:400;color:var(--sub);}
-.mflow .mf-body{padding:0 16px 13px;}
-.mflow .mf-cols{display:flex;gap:14px;flex-wrap:wrap;}
-.mflow .mf-col{flex:1 1 300px;min-width:260px;background:#fbfcfe;border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
-.mflow .mf-title{font-size:12.5px;font-weight:700;margin-bottom:8px;letter-spacing:.3px;}
-.mflow .mf-title.in{color:var(--red);}
-.mflow .mf-title.out{color:var(--green);}
-.mflow .mf-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;transition:background .15s,transform .15s;}
-.mflow .mf-item:hover{background:#f2f5fa;transform:translateX(2px);}
-.mflow .mf-rank{flex:0 0 18px;height:18px;line-height:18px;text-align:center;border-radius:5px;font-size:11px;font-weight:700;color:#fff;background:var(--sub);}
-.mflow .mf-item.in .mf-rank{background:var(--red);}
-.mflow .mf-item.out .mf-rank{background:var(--green);}
-.mflow .mf-code{font-size:13px;font-weight:700;color:var(--ink);flex:0 0 92px;}
-.mflow .mf-val{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;flex:0 0 86px;text-align:right;}
-.mflow .mf-val.in{color:var(--red);}
-.mflow .mf-val.out{color:var(--green);}
-.mflow .mf-meta{font-size:11px;color:var(--sub);flex:1 1 100%;padding-left:26px;line-height:1.5;}
-.mflow .mf-note{font-size:11px;color:#9aa4b2;margin-top:10px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.6;}
-
 </style>
 </head>
 <body data-page-node-id="Jzwai0zixEqxrCDKxtLno2">
@@ -1659,88 +1633,6 @@ function pickCommodity(code){
   sel.value = code; render();
   window.scrollTo(0, 0);
 }
-/* ===== 💰 当日资金流向（折叠条）=====
-   口径：主力资金净流入（估算）= 当日成交额 × 收盘位置系数
-        CLV = 2×(收盘−最低)/(最高−最低) − 1 ∈ [-1,1]，收在当日区间上沿=净流入、下沿=净流出。
-   数据：优先本地服务 /api/moneyflow（走 127.0.0.1:8766 时同源）；
-        网页版取不到本地服务时，回退同源静态快照 data/moneyflow.json。
-   默认收起，点标题展开，避免占用版面。 */
-var MFLOW = null;   // {asof, fetch_time, source, count, rows:[...]}
-function mfYi(v){
-  if (v === null || v === undefined || isNaN(v)) return '—';
-  var a = Math.abs(v), sign = v < 0 ? '−' : '+';
-  if (a >= 1e8) return sign + (a / 1e8).toFixed(2) + '亿';
-  if (a >= 1e4) return sign + (a / 1e4).toFixed(0) + '万';
-  return sign + a.toFixed(0);
-}
-function mflowShell(){
-  return '<details class="mflow" id="mflow">'
-    + '<summary><span class="mf-arrow">▶</span>💰 当日资金流向 · 主力净流入'
-    + '<span class="mf-hint" id="mflow-hint">加载中…</span></summary>'
-    + '<div class="mf-body" id="mflow-body"><div class="st-empty">正在获取资金流向…</div></div>'
-    + '</details>';
-}
-async function loadMoneyFlow(){
-  if (MFLOW) return MFLOW;
-  var sameOrigin = (location.protocol === 'http:' || location.protocol === 'https:');
-  var base = sameOrigin ? '' : 'http://127.0.0.1:8766';
-  try {
-    var r = await tryFetch(base + '/api/moneyflow?_=' + Date.now(), null, 12000);
-    if (r && r.ok) {
-      var j = await r.json();
-      if (j && j.rows && j.rows.length) { MFLOW = j; return MFLOW; }
-    }
-  } catch(e) {}
-  try {
-    var r2 = await tryFetch('data/moneyflow.json?_=' + Date.now(), null, 12000);
-    if (r2 && r2.ok) {
-      var j2 = await r2.json();
-      if (j2 && j2.rows && j2.rows.length) { MFLOW = j2; return MFLOW; }
-    }
-  } catch(e) {}
-  return null;
-}
-function mfItem(r, i, dir){
-  var cls = (dir === 'in') ? 'in' : 'out';
-  var meta = r.contract + ' · 成交' + mfYi(r.turnover).replace('+','')
-    + ' · 位置' + (r.ratio > 0 ? '+' : '') + (r.ratio != null ? r.ratio : '—');
-  return '<div class="mf-item ' + cls + '" onclick="pickCommodity(\'' + r.code + '\')" title="' + r.code + ' ' + esc(r.name) + ' · ' + r.contract + ' · 净流入 ' + mfYi(r.net) + '">'
-    + '<span class="mf-rank">' + (i + 1) + '</span>'
-    + '<span class="mf-code">' + r.code + ' ' + esc(r.name) + '</span>'
-    + '<span class="mf-val ' + cls + '">' + mfYi(r.net) + '</span>'
-    + '<span class="mf-meta">' + esc(meta) + '</span></div>';
-}
-async function hydrateMoneyFlow(){
-  var hint = document.getElementById('mflow-hint');
-  var body = document.getElementById('mflow-body');
-  if (!body) return;
-  var j = await loadMoneyFlow();
-  if (!j || !j.rows || !j.rows.length) {
-    if (hint) hint.textContent = '未取到数据';
-    body.innerHTML = '<div class="st-empty">未取到资金流向数据：请通过 <code>http://127.0.0.1:8766/</code> 打开本页（走本地服务），或先在桌面同步一次网页数据（<code>sync_to_site.py --push</code>）。</div>';
-    return;
-  }
-  var rows = j.rows;
-  var inflow  = rows.filter(function(r){ return r.net > 0; }).slice(0, 5);
-  var outflow = rows.filter(function(r){ return r.net < 0; }).slice(-5).reverse();
-  if (hint) {
-    hint.textContent = inflow.length
-      ? ('净流入前三 ' + inflow.slice(0, 3).map(function(r){ return r.code + ' ' + mfYi(r.net); }).join(' · '))
-      : '全市场资金净流出';
-  }
-  var col = function(title, arr, dir){
-    return '<div class="mf-col"><div class="mf-title ' + dir + '">' + title + '</div>'
-      + (arr.length ? arr.map(function(r, i){ return mfItem(r, i, dir); }).join('')
-                    : '<div class="st-empty">无</div>')
-      + '</div>';
-  };
-  body.innerHTML = '<div class="mf-cols">'
-    + col('📈 净流入 TOP5', inflow, 'in')
-    + col('📉 净流出 TOP5', outflow, 'out')
-    + '</div>'
-    + '<div class="mf-note">口径：<b>主力资金净流入（估算）= 当日成交额 × 收盘位置系数</b>，系数 = 2×(收盘−最低)/(最高−最低) − 1（收在当日区间上沿记净流入、下沿记净流出；振幅为 0 时按涨跌方向定号），属盘面强弱估算，<b>非交易所口径的持仓资金变动</b>，量级与成交额同阶。<br/>数据时点 ' + esc(j.fetch_time || j.asof || '') + ' · 来源 ' + esc(j.source || '') + ' · 覆盖 ' + (j.count || rows.length) + ' 个品种（展开各显示 5 名）。点击品种可跳转详情。</div>';
-}
-
 function buildStatsBar(){
   const arr = proRank();
   const head = '<div class="st-head">📊 高阶分值排行'
@@ -2151,8 +2043,7 @@ function render() {
   else { dot.className='dot empty'; txt.textContent=code+' 暂无数据，点击「向 AI 补全」'; }
 
   let html = '';
-  html += mflowShell();      // ★ 当日资金流向（折叠条，默认收起）
-  html += buildStatsBar();   // ★ 顶部统计栏：高阶分值排行（最强多头 / 最弱空头）
+  html += buildStatsBar();   // ★ 顶部统计栏：高阶分值排行（最强多头 TOP3 / 最弱空头 TOP3）
   if (has) {
     if (d.tldr && d.tldr.length) html += buildTLDR(d.tldr);
     html += buildTerm(d);
@@ -2178,7 +2069,6 @@ function render() {
   }
   html += '<div class="disclaimer"><b>免责声明</b>：以上内容基于公开数据和量化分析，仅供参考，不构成投资建议。市场有风险，投资需谨慎。任何投资决策应结合个人风险承受能力、资金状况和投资目标独立判断，必要时咨询持牌专业机构。过往表现不预示未来收益。</div>';
   document.getElementById('rpt').innerHTML = html;
-  hydrateMoneyFlow();        // 异步填充资金流向折叠条（失败不影响主渲染）
   window.scrollTo({top:0,behavior:'smooth'});
 }
 

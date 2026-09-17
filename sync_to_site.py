@@ -6,12 +6,15 @@
 用途：把桌面/下载两份研究数据同步成网站的远程种子，并（可选）推送到 GitHub，
       让网页版打开即最新。
 
-产出（两件事）：
+产出（三件事）：
   1. data/patch.json              ← ~/Desktop/期货研究数据/*.json 全字段合并
   2. data/profit_snapshot.json    ← 产业利润快照.json 的网站副本
      （index.html 的 loadProfitSnapshot() 会先读本地服务 /api/profit_snapshot，
        线上版读不到本地服务时回退读同源 data/profit_snapshot.json，
        所以这份副本是「利润参考库」能在网页版生效的通道）
+  3. data/moneyflow.json          ← 资金流向快照.json 的网站副本
+     （index.html 的 loadMoneyFlow() 先读本地服务 /api/moneyflow，
+       线上版回退读同源 data/moneyflow.json，通道同上）
 
 用法：
   python3 sync_to_site.py              # 仅生成上述两份文件（不推送）
@@ -33,6 +36,8 @@ DL_DIR = os.path.expanduser('~/Downloads/期货研究数据')
 PATCH_PATH = os.path.join(REPO, 'data', 'patch.json')
 SNAP_OUT = os.path.join(REPO, 'data', 'profit_snapshot.json')
 SNAP_NAME = '产业利润快照.json'
+MF_OUT = os.path.join(REPO, 'data', 'moneyflow.json')
+MF_SNAP_NAME = '资金流向快照.json'
 
 # 模板内嵌的全部品种 CODE（与 index.html DATA 顶层键一致）
 CODES = set("""A AG AL AP AU B BB BR BU C CF CJ CS CU CY EB EG FB FG FU HC I J JD
@@ -89,6 +94,32 @@ def export_profit_snapshot():
         json.dump(snap, f, ensure_ascii=False, indent=1)
         f.write('\n')
     print(f'✓ 已生成 data/profit_snapshot.json（源：{src}；asof {snap.get("asof")}，{len(snap.get("data", {}))} 个品种）')
+    return True
+
+def export_moneyflow_snapshot():
+    """把 资金流向快照.json 复制为网站同源副本 data/moneyflow.json（取最新一份）。
+    index.html 的 loadMoneyFlow() 先读本地服务 /api/moneyflow，线上读不到本地服务时
+    回退读同源 data/moneyflow.json —— 这份副本是「💰 当日资金流向」能在网页版生效的通道。"""
+    cands = [os.path.join(d, MF_SNAP_NAME) for d in (DESK_DIR, DL_DIR)]
+    cands = [p for p in cands if os.path.isfile(p)]
+    if not cands:
+        print(f'  ⚠ 未找到 {MF_SNAP_NAME}（先用本地服务打开一次模板即会自动生成），跳过资金流向副本')
+        return False
+    src = max(cands, key=os.path.getmtime)
+    try:
+        snap = json.load(open(src, encoding='utf-8'))
+    except Exception as e:
+        print(f'  ⚠ 资金流向快照解析失败（{src}）: {e}，跳过')
+        return False
+    rows = snap.get('rows') or []
+    if not rows:
+        print('  ⚠ 资金流向快照 rows 为空，跳过')
+        return False
+    os.makedirs(os.path.dirname(MF_OUT), exist_ok=True)
+    with open(MF_OUT, 'w', encoding='utf-8') as f:
+        json.dump(snap, f, ensure_ascii=False, indent=1)
+        f.write('\n')
+    print(f'✓ 已生成 data/moneyflow.json（源：{src}；asof {snap.get("asof")}，{len(rows)} 个品种）')
     return True
 
 def _gh_token():
@@ -314,6 +345,9 @@ def main():
 
     # 产业利润快照 → 网站同源副本（线上版利润参考库的数据通道）
     export_profit_snapshot()
+
+    # 资金流向快照 → 网站同源副本（线上版「当日资金流向」折叠条的数据通道）
+    export_moneyflow_snapshot()
 
     if not push_flag:
         print('\n（未推送。要上线加 --push：python3 sync_to_site.py --push）')
