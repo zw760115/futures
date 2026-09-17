@@ -506,6 +506,36 @@ async function applyRemoteSeed() {
 }
 applyRemoteSeed();
 
+// === 每日交易所仓单日报（自动抓取）===
+// 页面启动从 GitHub 拉 data/warrant.json（与 patch.json 同源），覆盖各品种 inv.warrant
+async function applyWarrantSeed() {
+  const urls = [
+    'https://cdn.jsdelivr.net/gh/zw760115/futures@main/data/warrant.json',
+    'https://raw.githubusercontent.com/zw760115/futures/main/data/warrant.json'
+  ];
+  for (const u of urls) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(function(){ ctrl.abort(); }, 8000);
+      const r = await fetch(u, { signal: ctrl.signal, cache: 'no-cache' });
+      clearTimeout(timer);
+      if (!r.ok) continue;
+      const patch = await r.json();
+      if (!patch || !patch.warrant) continue;
+      let changed = false;
+      for (const code in patch.warrant) {
+        if (!DATA[code]) DATA[code] = {};
+        if (!DATA[code].inv) DATA[code].inv = {};
+        DATA[code].inv.warrant = patch.warrant[code]; // 每日仓单日报，直接覆盖内嵌旧值
+        changed = true;
+      }
+      if (changed) { saveStore(); render(); }
+      return;
+    } catch (e) { /* 离线/CORS/超时 → 用内嵌仓单数据，不阻断 */ }
+  }
+}
+applyWarrantSeed();
+
 function saveStore() {
   const out = {};
   for (const k in DATA) out[k] = DATA[k];
