@@ -1,19 +1,19 @@
 {
   "data_date": "20260917",
   "exchange_dates": {
-    "郑商所": "20260916",
+    "郑商所": "20260917",
     "大商所": "20260917",
-    "广期所": "20260916",
+    "广期所": "20260917",
     "上期所": "20260917"
   },
-  "generated_at": "2026-09-17T13:59:43",
+  "generated_at": "2026-09-17T22:26:20",
   "warrant": {
     "SR": {
       "exchange": "郑商所",
-      "total": 9751,
-      "delta": -150,
+      "total": 9669,
+      "delta": -1302,
       "unit": "张",
-      "total2": 9.751,
+      "total2": 9.669,
       "items": [
         {
           "name": "藁城永安",
@@ -25,7 +25,7 @@
         },
         {
           "name": "中储河南",
-          "value": 37
+          "value": 30
         },
         {
           "name": "广西贵港",
@@ -41,7 +41,7 @@
         },
         {
           "name": "云南陆航",
-          "value": 133
+          "value": 122
         },
         {
           "name": "云鸥物流",
@@ -49,7 +49,7 @@
         },
         {
           "name": "云南英茂（厂库）",
-          "value": 1000
+          "value": 936
         },
         {
           "name": "新宁糖业（厂库）",
@@ -64,10 +64,10 @@
     },
     "CF": {
       "exchange": "郑商所",
-      "total": 231,
-      "delta": -351,
+      "total": 212,
+      "delta": -309,
       "unit": "张",
-      "total2": 0.1155,
+      "total2": 0.106,
       "items": [
         {
           "name": "四三二处",
@@ -95,7 +95,7 @@
         },
         {
           "name": "湖北三三八处",
-          "value": 4
+          "value": 3
         },
         {
           "name": "中棉潍坊",
@@ -107,7 +107,7 @@
         },
         {
           "name": "南通供销",
-          "value": 53
+          "value": 52
         },
         {
           "name": "新疆中新建",
@@ -119,7 +119,7 @@
         },
         {
           "name": "新疆农资集团",
-          "value": 13
+          "value": 8
         },
         {
           "name": "新疆银棉",
@@ -138,12 +138,8 @@
           "value": 10
         },
         {
-          "name": "中锦胡杨河",
-          "value": 1
-        },
-        {
           "name": "兵棉宏泰",
-          "value": 76
+          "value": 65
         },
         {
           "name": "阿拉尔鹏宇",
@@ -166,36 +162,32 @@
     },
     "CY": {
       "exchange": "郑商所",
-      "total": 26,
-      "delta": -6,
+      "total": 11,
+      "delta": -54,
       "unit": "张",
-      "total2": 0.013,
+      "total2": 0.0055,
       "items": [
         {
           "name": "尉氏纺织",
-          "value": 26
+          "value": 11
         }
       ],
       "source": "czce"
     },
     "RM": {
       "exchange": "郑商所",
-      "total": 13281,
-      "delta": 0,
+      "total": 9608,
+      "delta": -18219,
       "unit": "张",
-      "total2": 13.281,
+      "total2": 9.608,
       "items": [
-        {
-          "name": "东莞富之源（厂库）",
-          "value": 336
-        },
         {
           "name": "厦门中禾（厂库）",
           "value": 2000
         },
         {
           "name": "邦基东莞（厂库）",
-          "value": 1900
+          "value": 900
         },
         {
           "name": "建发物产（厂库）",
@@ -207,11 +199,7 @@
         },
         {
           "name": "道道全岳阳（厂库）",
-          "value": 2065
-        },
-        {
-          "name": "益海嘉里（厂库）",
-          "value": 1000
+          "value": 728
         },
         {
           "name": "供销粮油（厂库）",
@@ -222,18 +210,14 @@
     },
     "OI": {
       "exchange": "郑商所",
-      "total": 2897,
-      "delta": 0,
+      "total": 1704,
+      "delta": -3579,
       "unit": "张",
-      "total2": 2.897,
+      "total2": 1.704,
       "items": [
         {
           "name": "益海广汉",
           "value": 50
-        },
-        {
-          "name": "凯欣粮油",
-          "value": 185
         },
         {
           "name": "成粮集团",
@@ -241,11 +225,7 @@
         },
         {
           "name": "重庆道道全（厂库）",
-          "value": 2000
-        },
-        {
-          "name": "新兴粮油（厂库）",
-          "value": 8
+          "value": 1000
         }
       ],
       "source": "czce"
@@ -320,10 +300,10 @@
     },
     "CJ": {
       "exchange": "郑商所",
-      "total": 791,
-      "delta": -882,
+      "total": 790,
+      "delta": -1284,
       "unit": "张",
-      "total2": 0.3955,
+      "total2": 0.395,
       "items": [
         {
           "name": "新疆叶河源",
@@ -331,7 +311,7 @@
         },
         {
           "name": "新疆聚天红",
-          "value": 192
+          "value": 191
         },
         {
           "name": "若羌靖祥",
@@ -379,10 +359,10 @@
     },
     "MA": {
       "exchange": "郑商所",
-      "total": 3985,
-      "delta": 825,
+      "total": 3798,
+      "delta": -561,
       "unit": "张",
-      "total2": 3.985,
+      "total2": 3.798,
       "items": [
         {
           "name": "杭实化工（厂库）",
@@ -398,25 +378,25 @@
         },
         {
           "name": "安徽中能（厂库）",
-          "value": 1850
+          "value": 1663
         }
       ],
       "source": "czce"
     },
     "FG": {
       "exchange": "郑商所",
-      "total": 3350,
-      "delta": 0,
+      "total": 425,
+      "delta": -8775,
       "unit": "张",
-      "total2": 6.7,
+      "total2": 0.85,
       "items": [
         {
           "name": "武汉创景（厂库）",
-          "value": 517
+          "value": 310
         },
         {
           "name": "弘润建材",
-          "value": 2768
+          "value": 50
         },
         {
           "name": "洪湖长利",
@@ -427,10 +407,10 @@
     },
     "SF": {
       "exchange": "郑商所",
-      "total": 6724,
-      "delta": -321,
+      "total": 6860,
+      "delta": 408,
       "unit": "张",
-      "total2": 3.362,
+      "total2": 3.43,
       "items": [
         {
           "name": "湖北三三八处",
@@ -442,11 +422,11 @@
         },
         {
           "name": "东之桦",
-          "value": 844
+          "value": 816
         },
         {
           "name": "江苏奔牛",
-          "value": 901
+          "value": 1197
         },
         {
           "name": "中储天津",
@@ -454,7 +434,7 @@
         },
         {
           "name": "中储陆通",
-          "value": 163
+          "value": 38
         },
         {
           "name": "安阳万庄",
@@ -466,7 +446,7 @@
         },
         {
           "name": "中物流常州",
-          "value": 277
+          "value": 270
         },
         {
           "name": "建发仓储",
@@ -497,18 +477,18 @@
     },
     "SM": {
       "exchange": "郑商所",
-      "total": 48681,
-      "delta": -2565,
+      "total": 47504,
+      "delta": -3531,
       "unit": "张",
-      "total2": 24.3405,
+      "total2": 23.752,
       "items": [
         {
           "name": "湖北三三八处",
-          "value": 4537
+          "value": 4457
         },
         {
           "name": "张家港外服",
-          "value": 10532
+          "value": 10449
         },
         {
           "name": "永安资本（厂库）",
@@ -516,11 +496,11 @@
         },
         {
           "name": "东之桦",
-          "value": 1168
+          "value": 1128
         },
         {
           "name": "玖隆物流",
-          "value": 4836
+          "value": 4040
         },
         {
           "name": "江苏奔牛",
@@ -528,11 +508,11 @@
         },
         {
           "name": "安阳万庄",
-          "value": 1174
+          "value": 1173
         },
         {
           "name": "中储南京",
-          "value": 4680
+          "value": 4673
         },
         {
           "name": "中物流常州",
@@ -560,7 +540,7 @@
         },
         {
           "name": "湖北三三七处",
-          "value": 4377
+          "value": 4207
         }
       ],
       "source": "czce"
@@ -568,7 +548,7 @@
     "UR": {
       "exchange": "郑商所",
       "total": 4670,
-      "delta": -540,
+      "delta": -2400,
       "unit": "张",
       "total2": 9.34,
       "items": [
@@ -621,48 +601,39 @@
     },
     "SA": {
       "exchange": "郑商所",
-      "total": 1897,
-      "delta": -156,
+      "total": 169,
+      "delta": -5184,
       "unit": "张",
-      "total2": 3.794,
+      "total2": 0.338,
       "items": [
         {
-          "name": "河北一三三处",
-          "value": 353
-        },
-        {
           "name": "云图控股（厂库）",
-          "value": 1544
+          "value": 169
         }
       ],
       "source": "czce"
     },
     "PF": {
       "exchange": "郑商所",
-      "total": 1700,
-      "delta": -900,
+      "total": 1395,
+      "delta": -915,
       "unit": "张",
-      "total2": 0.85,
+      "total2": 0.6975,
       "items": [
         {
           "name": "国贸石化（厂库）",
-          "value": 1700
+          "value": 1395
         }
       ],
       "source": "czce"
     },
     "PX": {
       "exchange": "郑商所",
-      "total": 1000,
-      "delta": 0,
+      "total": 0,
+      "delta": -3000,
       "unit": "张",
-      "total2": 1.0,
-      "items": [
-        {
-          "name": "金桥化工（厂库）",
-          "value": 1000
-        }
-      ],
+      "total2": 0.0,
+      "items": [],
       "source": "czce"
     },
     "A": {
@@ -703,10 +674,10 @@
     },
     "C": {
       "exchange": "大商所",
-      "total": 77457,
-      "delta": -2722,
+      "total": 78507,
+      "delta": 1050,
       "unit": "手",
-      "total2": 77.457,
+      "total2": 78.507,
       "items": [],
       "source": "eastmoney"
     },
@@ -739,26 +710,26 @@
     },
     "V": {
       "exchange": "大商所",
-      "total": 121967,
-      "delta": -245,
+      "total": 121798,
+      "delta": -169,
       "unit": "手",
-      "total2": 60.9835,
+      "total2": 60.899,
       "items": [],
       "source": "eastmoney"
     },
     "PP": {
       "exchange": "大商所",
-      "total": 31182,
-      "delta": -252,
+      "total": 30995,
+      "delta": -187,
       "unit": "手",
-      "total2": 15.591,
+      "total2": 15.4975,
       "items": [],
       "source": "eastmoney"
     },
     "EG": {
       "exchange": "大商所",
       "total": 2244,
-      "delta": 800,
+      "delta": 0,
       "unit": "手",
       "total2": 2.244,
       "items": [],
@@ -766,17 +737,17 @@
     },
     "EB": {
       "exchange": "大商所",
-      "total": 0,
-      "delta": -4500,
+      "total": 300,
+      "delta": 300,
       "unit": "手",
-      "total2": 0.0,
+      "total2": 0.15,
       "items": [],
       "source": "eastmoney"
     },
     "J": {
       "exchange": "大商所",
       "total": 1416,
-      "delta": -19,
+      "delta": 0,
       "unit": "手",
       "total2": 14.16,
       "items": [],
@@ -785,7 +756,7 @@
     "JM": {
       "exchange": "大商所",
       "total": 586,
-      "delta": -888,
+      "delta": 0,
       "unit": "手",
       "total2": 3.516,
       "items": [],
@@ -793,10 +764,10 @@
     },
     "I": {
       "exchange": "大商所",
-      "total": 5850,
-      "delta": 0,
+      "total": 5150,
+      "delta": -700,
       "unit": "手",
-      "total2": 58.5,
+      "total2": 51.5,
       "items": [],
       "source": "eastmoney"
     },
@@ -811,19 +782,19 @@
     },
     "LH": {
       "exchange": "大商所",
-      "total": 337,
-      "delta": -11,
+      "total": 334,
+      "delta": -3,
       "unit": "手",
-      "total2": 0.5392,
+      "total2": 0.5344,
       "items": [],
       "source": "eastmoney"
     },
     "PG": {
       "exchange": "大商所",
-      "total": 4573,
-      "delta": -620,
+      "total": 4273,
+      "delta": -300,
       "unit": "手",
-      "total2": 4.573,
+      "total2": 4.273,
       "items": [],
       "source": "eastmoney"
     },
@@ -847,18 +818,18 @@
     },
     "LC": {
       "exchange": "广期所",
-      "total": 91030,
-      "delta": -3298,
+      "total": 87166,
+      "delta": -3864,
       "unit": "手",
-      "total2": 9.103,
+      "total2": 8.7166,
       "items": [
         {
           "name": "象屿速传上海",
-          "value": 4939
+          "value": 4893
         },
         {
           "name": "外运龙泉驿",
-          "value": 7084
+          "value": 7059
         },
         {
           "name": "中储临港",
@@ -866,15 +837,15 @@
         },
         {
           "name": "建发上海",
-          "value": 1520
+          "value": 1400
         },
         {
           "name": "中远海运临港",
-          "value": 860
+          "value": 870
         },
         {
           "name": "天诚高新",
-          "value": 9806
+          "value": 8935
         },
         {
           "name": "中远海运镇江",
@@ -882,7 +853,7 @@
         },
         {
           "name": "五矿无锡",
-          "value": 566
+          "value": 495
         },
         {
           "name": "江苏奔牛港务",
@@ -898,7 +869,7 @@
         },
         {
           "name": "中远海运南昌",
-          "value": 6390
+          "value": 5581
         },
         {
           "name": "融捷集团",
@@ -930,17 +901,17 @@
         },
         {
           "name": "",
-          "value": 45515
+          "value": 43583
         }
       ],
       "source": "gfex"
     },
     "PS": {
       "exchange": "广期所",
-      "total": 49760,
-      "delta": 60,
+      "total": 50180,
+      "delta": 420,
       "unit": "手",
-      "total2": 14.928,
+      "total2": 15.054,
       "items": [
         {
           "name": "中物流（石河子）",
@@ -952,15 +923,15 @@
         },
         {
           "name": "中物流（石河子）",
-          "value": 1540
-        },
-        {
-          "name": "中疆物流三工镇物流园",
-          "value": 20
+          "value": 1710
         },
         {
           "name": "中疆物流三工镇物流园",
           "value": 2180
+        },
+        {
+          "name": "中疆物流三工镇物流园",
+          "value": 20
         },
         {
           "name": "中铝物流包头",
@@ -972,22 +943,6 @@
         },
         {
           "name": "国贸泰达包头",
-          "value": 460
-        },
-        {
-          "name": "国贸泰达包头",
-          "value": 900
-        },
-        {
-          "name": "国贸泰达包头",
-          "value": 620
-        },
-        {
-          "name": "国贸泰达包头",
-          "value": 300
-        },
-        {
-          "name": "国贸泰达包头",
           "value": 790
         },
         {
@@ -995,8 +950,20 @@
           "value": 510
         },
         {
-          "name": "建发包头",
-          "value": 310
+          "name": "国贸泰达包头",
+          "value": 620
+        },
+        {
+          "name": "国贸泰达包头",
+          "value": 900
+        },
+        {
+          "name": "国贸泰达包头",
+          "value": 460
+        },
+        {
+          "name": "国贸泰达包头",
+          "value": 300
         },
         {
           "name": "建发包头",
@@ -1004,11 +971,19 @@
         },
         {
           "name": "建发包头",
-          "value": 400
+          "value": 1460
         },
         {
           "name": "建发包头",
-          "value": 1460
+          "value": 310
+        },
+        {
+          "name": "建发包头",
+          "value": 400
+        },
+        {
+          "name": "中远海运成都青白江",
+          "value": 400
         },
         {
           "name": "中远海运成都青白江",
@@ -1016,15 +991,11 @@
         },
         {
           "name": "中远海运成都青白江",
-          "value": 400
-        },
-        {
-          "name": "中远海运成都青白江",
           "value": 480
         },
         {
           "name": "中储成都双流",
-          "value": 1190
+          "value": 1710
         },
         {
           "name": "中储成都双流",
@@ -1032,7 +1003,7 @@
         },
         {
           "name": "中储成都双流",
-          "value": 1670
+          "value": 1190
         },
         {
           "name": "蒙特硅基（内蒙包头）",
@@ -1052,17 +1023,17 @@
         },
         {
           "name": "",
-          "value": 24880
+          "value": 25090
         }
       ],
       "source": "gfex"
     },
     "SI": {
       "exchange": "广期所",
-      "total": 66880,
-      "delta": 0,
+      "total": 66840,
+      "delta": -40,
       "unit": "手",
-      "total2": 33.44,
+      "total2": 33.42,
       "items": [
         {
           "name": "中储吴淞",
@@ -1142,7 +1113,7 @@
         },
         {
           "name": "建发天津东丽",
-          "value": 3160
+          "value": 3140
         },
         {
           "name": "国贸有色矿产（象屿速传上海）",
@@ -1178,7 +1149,7 @@
         },
         {
           "name": "",
-          "value": 33440
+          "value": 33420
         }
       ],
       "source": "gfex"
@@ -1194,98 +1165,98 @@
     },
     "AG": {
       "exchange": "上期所",
-      "total": 1405402,
-      "delta": -20534,
+      "total": 1397769,
+      "delta": -7633,
       "unit": "张",
-      "total2": 2.1081,
+      "total2": 2.0967,
       "items": [],
       "source": "eastmoney"
     },
     "CU": {
       "exchange": "上期所",
-      "total": 32945,
-      "delta": 1095,
+      "total": 31400,
+      "delta": -1545,
       "unit": "张",
-      "total2": 16.4725,
+      "total2": 15.7,
       "items": [],
       "source": "eastmoney"
     },
     "AL": {
       "exchange": "上期所",
-      "total": 195220,
-      "delta": -6802,
+      "total": 189895,
+      "delta": -5325,
       "unit": "张",
-      "total2": 97.61,
+      "total2": 94.9475,
       "items": [],
       "source": "eastmoney"
     },
     "AO": {
       "exchange": "上期所",
-      "total": 274195,
-      "delta": 2103,
+      "total": 272699,
+      "delta": -1496,
       "unit": "张",
-      "total2": 548.39,
+      "total2": 545.398,
       "items": [],
       "source": "eastmoney"
     },
     "NI": {
       "exchange": "上期所",
-      "total": 94694,
-      "delta": -643,
+      "total": 93931,
+      "delta": -763,
       "unit": "张",
-      "total2": 9.4694,
+      "total2": 9.3931,
       "items": [],
       "source": "eastmoney"
     },
     "SN": {
       "exchange": "上期所",
-      "total": 5496,
-      "delta": -253,
+      "total": 5221,
+      "delta": -275,
       "unit": "张",
-      "total2": 0.5496,
+      "total2": 0.5221,
       "items": [],
       "source": "eastmoney"
     },
     "ZN": {
       "exchange": "上期所",
-      "total": 95033,
-      "delta": -954,
+      "total": 94053,
+      "delta": -980,
       "unit": "张",
-      "total2": 47.5165,
+      "total2": 47.0265,
       "items": [],
       "source": "eastmoney"
     },
     "PB": {
       "exchange": "上期所",
-      "total": 59719,
-      "delta": -377,
+      "total": 59238,
+      "delta": -481,
       "unit": "张",
-      "total2": 29.8595,
+      "total2": 29.619,
       "items": [],
       "source": "eastmoney"
     },
     "RB": {
       "exchange": "上期所",
-      "total": 86072,
-      "delta": -610,
+      "total": 91932,
+      "delta": 5860,
       "unit": "张",
-      "total2": 86.072,
+      "total2": 91.932,
       "items": [],
       "source": "eastmoney"
     },
     "HC": {
       "exchange": "上期所",
-      "total": 220690,
-      "delta": 0,
+      "total": 220101,
+      "delta": -589,
       "unit": "张",
-      "total2": 220.69,
+      "total2": 220.101,
       "items": [],
       "source": "eastmoney"
     },
     "BU": {
       "exchange": "上期所",
       "total": 2660,
-      "delta": -70,
+      "delta": 0,
       "unit": "张",
       "total2": 2.66,
       "items": [],
@@ -1302,28 +1273,28 @@
     },
     "BR": {
       "exchange": "上期所",
-      "total": 3830,
-      "delta": -40,
+      "total": 3630,
+      "delta": -200,
       "unit": "张",
-      "total2": 1.915,
+      "total2": 1.815,
       "items": [],
       "source": "eastmoney"
     },
     "SS": {
       "exchange": "上期所",
-      "total": 69272,
-      "delta": -646,
+      "total": 68191,
+      "delta": -1081,
       "unit": "张",
-      "total2": 34.636,
+      "total2": 34.0955,
       "items": [],
       "source": "eastmoney"
     },
     "SP": {
       "exchange": "上期所",
-      "total": 418316,
-      "delta": 983,
+      "total": 419913,
+      "delta": 1597,
       "unit": "张",
-      "total2": 418.316,
+      "total2": 419.913,
       "items": [],
       "source": "eastmoney"
     }
