@@ -216,17 +216,25 @@ def fetch_gfex(date):
     return out
 
 
-def fetch_shfe_em(date):
-    """上期所: 旧接口废弃, 用东方财富库存接口兜底(仅总量+增减, 无分仓库)"""
+# 东方财富库存接口的品种中文名映射(官方接口失败时兜底; 东财覆盖全部市场)
+DCE_CODE2CN = {
+    "A": "豆一", "B": "豆二", "M": "豆粕", "Y": "豆油", "C": "玉米", "CS": "玉米淀粉",
+    "P": "棕榈", "L": "塑料", "V": "PVC", "PP": "聚丙烯", "EG": "乙二醇", "EB": "苯乙烯",
+    "J": "焦炭", "JM": "焦煤", "I": "铁矿石", "JD": "鸡蛋", "LH": "生猪",
+    "PG": "液化石油气", "RR": "粳米", "BZ": "纯苯",
+}
+
+
+def fetch_em_inventory(date, codes_map, exchange_cn, tag):
+    """通用东方财富库存兜底(仅总量+增减, 无分仓库)。codes_map: 模板代码->东财中文名"""
     if ak is None:
         return {}
     out = {}
-    for code, cn in SHFE_CODE2CN.items():
+    for code, cn in codes_map.items():
         try:
             df = ak.futures_inventory_em(symbol=cn)
             if df is None or len(df) == 0:
                 continue
-            # 列为 日期/库存/增减
             df = df.copy()
             df["日期"] = df["日期"].astype(str)
             row = df[df["日期"] == date]
@@ -234,58 +242,77 @@ def fetch_shfe_em(date):
                 row = df.iloc[[-1]]
             r = row.iloc[0]
             out[code] = {
-                "exchange": "上期所",
+                "exchange": exchange_cn,
                 "total": _to_int(r["库存"]),
                 "delta": _to_int(r["增减"]),
-                "unit": "张",
+                "unit": "张" if exchange_cn == "上期所" else "手",
                 "total2": _wan(_to_int(r["库存"]), code),
                 "items": [],
                 "source": "eastmoney",
             }
         except Exception as e:
-            print(f"  [SHFE/{code}] 东方财富兜底失败: {e}", file=sys.stderr)
+            print(f"  [{tag}/{code}] 东方财富兜底失败: {e}", file=sys.stderr)
     return out
+
+
+def fetch_shfe_em(date):
+    """上期所: 旧接口废弃, 用东方财富库存接口兜底(仅总量+增减, 无分仓库)"""
+    return fetch_em_inventory(date, SHFE_CODE2CN, "上期所", "SHFE")
+
+
+def fetch_dce_em(date):
+    """大商所: 官方接口被反爬(412)或失败时, 用东方财富库存接口兜底"""
+    return fetch_em_inventory(date, DCE_CODE2CN, "大商所", "DCE")
 
 
 def main():
     start = sys.argv[1] if len(sys.argv) > 1 else dt.date.today().strftime("%Y%m%d")
-    print(f"目标日期: {start}  回溯最多7天找最近交易日...")
+    print(f"目标日期: {start}  每个交易所独立回溯最多7天找各自最近交易日...")
 
     warrant = {}
-    used_date = None
-    for date in backdate(start, 7):
-        print(f"\n--- 试 {date} ---")
-        try:
-            cz = fetch_czce(date)
-        except Exception as e:
-            cz = {}; print(f"  [CZCE] 失败: {e}", file=sys.stderr)
-        try:
-            dc = fetch_dce(date)
-        except Exception as e:
-            dc = {}; print(f"  [DCE] 失败: {e}", file=sys.stderr)
-        try:
-            gf = fetch_gfex(date)
-        except Exception as e:
-            gf = {}; print(f"  [GFEX] 失败: {e}", file=sys.stderr)
-        try:
-            sh = fetch_shfe_em(date)
-        except Exception as e:
-            sh = {}; print(f"  [SHFE] 失败: {e}", file=sys.stderr)
+    dates_used = {}   # exchange -> 该所最近有数据的日期
 
-        if cz or dc or gf or sh:
-            used_date = date
-            for src in (cz, dc, gf, sh):
-                warrant.update(src)
-            break
-        else:
-            print(f"  {date} 无数据, 继续回溯")
+    # 每所独立回溯：某所当日无数据(如17:30前日报未发布)时, 该所自己退一天, 不拖累其它所
+    # 每条: (标签, 中文名, 官方抓取函数, 东财兜底函数)
+    fetchers = [
+        ("CZCE", "郑商所", fetch_czce, None),
+        ("DCE",  "大商所", fetch_dce, fetch_dce_em),
+        ("GFEX", "广期所", fetch_gfex, None),
+        ("SHFE", "上期所", fetch_shfe_em, None),
+    ]
+    for tag, cn, fn, fallback in fetchers:
+        got = {}
+        for date in backdate(start, 7):
+            print(f"\n--- [{tag}] 试 {date} ---")
+            try:
+                got = fn(date)
+            except Exception as e:
+                got = {}
+                print(f"  [{tag}] 失败: {e}", file=sys.stderr)
+            if not got and fallback is not None:
+                try:
+                    got = fallback(date)
+                    if got:
+                        print(f"  [{tag}] 官方接口无数据, 已用东方财富兜底")
+                except Exception as e:
+                    print(f"  [{tag}] 兜底也失败: {e}", file=sys.stderr)
+            if got:
+                dates_used[cn] = date
+                warrant.update(got)
+                print(f"  [{tag}] {date} 成功: {len(got)} 个品种")
+                break
+        if not got:
+            print(f"[WARN] {cn} 近7天均无数据, 本次跳过", file=sys.stderr)
 
-    if not used_date:
+    if not warrant:
         print("[ERROR] 近7天均无交易所数据, 未输出", file=sys.stderr)
         sys.exit(2)
 
+    used_date = max(dates_used.values())
+
     result = {
         "data_date": used_date,
+        "exchange_dates": dates_used,
         "generated_at": dt.datetime.now().isoformat(timespec="seconds"),
         "warrant": warrant,
     }
@@ -295,11 +322,9 @@ def main():
 
     print(f"\n✅ 已写入 {OUT}")
     print(f"   数据日期: {used_date}  覆盖品种数: {len(warrant)}")
-    by_ex = {}
-    for v in warrant.values():
-        by_ex[v["exchange"]] = by_ex.get(v["exchange"], 0) + 1
-    for ex, n in by_ex.items():
-        print(f"   - {ex}: {n} 个品种")
+    for cn, d in dates_used.items():
+        n = sum(1 for v in warrant.values() if v["exchange"] == cn)
+        print(f"   - {cn}: {n} 个品种 (数据日期 {d})")
     # 打印样例
     for code in list(warrant)[:6]:
         w = warrant[code]
