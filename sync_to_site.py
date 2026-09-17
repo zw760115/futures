@@ -69,13 +69,14 @@ def scan_desk():
     latest = {}
     for fp in glob.glob(os.path.join(DESK_DIR, '*.json')):
         fn = os.path.basename(fp)
-        code = code_from_filename(fn)
-        if not code:
-            continue
         try:
             data = json.load(open(fp, encoding='utf-8'))
         except Exception as e:
             print(f'  ⚠ 跳过 {fn}（解析失败: {e}）')
+            continue
+        # 优先用 JSON 内部的 code 字段（权威）；文件名解析仅作兜底
+        code = (data.get('code') if isinstance(data, dict) else None) or code_from_filename(fn)
+        if not code or code not in CODES:
             continue
         mt = os.path.getmtime(fp)
         if code not in latest or mt > latest[code][0]:
