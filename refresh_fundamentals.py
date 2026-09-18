@@ -236,14 +236,42 @@ def target_dirs():
 def _safe_name(s):
     return re.sub(r'[/\\\?%\*:\|"<>\x00-\x1f]', '', str(s or '')).strip()
 
+BAK_SUBDIR = "_bak"
+
+
+def backup_one(fp):
+    """把现有品种 JSON 快照到同目录的 _bak/ 子目录，滚动只保留最近 1 份。
+
+    为什么不沿用 `xxx.json.bak_<时间戳>`：那样备份会撒在主数据目录里无限堆积
+    （2026-09-18 清理过 153 份存量）。集中到 _bak/ + 滚动保留 → 主目录始终干净，
+    每个品种仍留一步回滚点。"""
+    bak_dir = os.path.join(os.path.dirname(fp), BAK_SUBDIR)
+    try:
+        os.makedirs(bak_dir, exist_ok=True)
+    except OSError:
+        return None
+    stem = os.path.basename(fp)
+    for old in glob.glob(os.path.join(bak_dir, stem + ".bak_*")):
+        try:
+            os.remove(old)
+        except OSError:
+            pass
+    dst = os.path.join(bak_dir, f"{stem}.bak_{datetime.now().strftime('%Y%m%d-%H%M%S')}")
+    try:
+        os.replace(fp, dst)
+    except OSError:
+        return None
+    return dst
+
+
 def save_variety(code, name, data):
     fname = f"{code}{_safe_name(name)}_库存基差期限结构.json"
     written = []
     for d in target_dirs():
         fp = os.path.join(d, fname)
-        # 备份
+        # 备份进 _bak/（滚动只留最近 1 份），主目录不再产生 .bak_ 文件
         if os.path.exists(fp):
-            os.replace(fp, fp + f".bak_{datetime.now().strftime('%Y%m%d-%H%M%S')}")
+            backup_one(fp)
         with open(fp, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=1)
         written.append(fp)
