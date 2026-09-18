@@ -1,6 +1,6 @@
 {
  "asof": "2026-09-18",
- "fetch_time": "2026-09-18 22:59:51",
+ "fetch_time": "2026-09-18 23:10:02",
  "source": "东方财富(push2delay) · 收盘位置法估算",
  "count": 59,
  "rows": [
@@ -9,44 +9,55 @@
    "name": "乙二醇",
    "exchange": "大商所",
    "contract": "eg2610",
-   "close": 6192.0,
-   "chg_pct": 3.08,
-   "turnover": 39536265070.0,
-   "ratio": 0.846,
-   "net": 33453762751.538467
-  },
-  {
-   "code": "JM",
-   "name": "焦煤",
-   "exchange": "大商所",
-   "contract": "jm2701",
-   "close": 1514.0,
-   "chg_pct": 1.82,
-   "turnover": 26501526480.0,
-   "ratio": 0.862,
-   "net": 22846143517.24138
+   "close": 6197.0,
+   "chg_pct": 3.16,
+   "turnover": 39659836230.0,
+   "ratio": 0.905,
+   "net": 35905058835.44379
   },
   {
    "code": "MA",
    "name": "甲醇",
    "exchange": "郑商所",
    "contract": "MA610",
-   "close": 3524.0,
-   "chg_pct": 2.65,
-   "turnover": 24135858990.0,
-   "ratio": 0.917,
-   "net": 22124537407.5
+   "close": 3527.0,
+   "chg_pct": 2.74,
+   "turnover": 24260914710.0,
+   "ratio": 0.973,
+   "net": 23596232115.20548
+  },
+  {
+   "code": "JM",
+   "name": "焦煤",
+   "exchange": "大商所",
+   "contract": "jm2701",
+   "close": 1513.5,
+   "chg_pct": 1.78,
+   "turnover": 26589520080.0,
+   "ratio": 0.828,
+   "net": 22005120066.206898
   },
   {
    "code": "BU",
    "name": "沥青",
    "exchange": "上期所",
    "contract": "bu2610",
-   "close": 5922.0,
-   "chg_pct": 3.13,
-   "turnover": 23267761930.0,
-   "ratio": 0.909,
-   "net": 21152510845.454548
+   "close": 5924.0,
+   "chg_pct": 3.17,
+   "turnover": 23351583590.0,
+   "ratio": 0.939,
+   "net": 21936336099.69697
+  },
+  {
+   "code": "RU",
+   "name": "天然橡胶",
+   "exchange": "上期所",
+   "contract": "ru2701",
+   "close": 18850.0,
+   "chg_pct": 0.96,
+   "turnover": 16980985250.0,
+   "ratio": 0.938,
+   "net": 15919673671.875
   },
   {
    "code": "JD",
@@ -60,37 +71,37 @@
    "net": 14849469552.549019
   },
   {
-   "code": "RU",
-   "name": "天然橡胶",
-   "exchange": "上期所",
-   "contract": "ru2701",
-   "close": 18840.0,
-   "chg_pct": 0.91,
-   "turnover": 16938969000.0,
-   "ratio": 0.812,
-   "net": 13762912312.5
+   "code": "V",
+   "name": "PVC",
+   "exchange": "大商所",
+   "contract": "v2701",
+   "close": 4761.0,
+   "chg_pct": 1.23,
+   "turnover": 14723314770.0,
+   "ratio": 0.613,
+   "net": 9023967117.096773
   },
   {
    "code": "SP",
    "name": "纸浆",
    "exchange": "上期所",
    "contract": "sp2611",
-   "close": 4926.0,
-   "chg_pct": 1.86,
-   "turnover": 17758997640.0,
-   "ratio": 0.464,
-   "net": 8245248904.285712
+   "close": 4928.0,
+   "chg_pct": 1.9,
+   "turnover": 17776341340.0,
+   "ratio": 0.5,
+   "net": 8888170670.0
   },
   {
-   "code": "V",
-   "name": "PVC",
+   "code": "Y",
+   "name": "豆油",
    "exchange": "大商所",
-   "contract": "v2701",
-   "close": 4759.0,
-   "chg_pct": 1.19,
-   "turnover": 14691565735.0,
-   "ratio": 0.548,
-   "net": 8056665080.4838705
+   "contract": "y2701",
+   "close": 8897.0,
+   "chg_pct": 0.25,
+   "turnover": 8055843700.0,
+   "ratio": 0.812,
+   "net": 6545373006.25
   },
   {
    "code": "RB",
@@ -99,9 +110,9 @@
    "contract": "rb2701",
    "close": 3104.0,
    "chg_pct": 0.26,
-   "turnover": 6915951540.0,
+   "turnover": 6943917520.0,
    "ratio": 0.818,
-   "net": 5658505805.454545
+   "net": 5681387061.818181
   },
   {
    "code": "SR",
@@ -110,31 +121,20 @@
    "contract": "SR701",
    "close": 5335.0,
    "chg_pct": 0.24,
-   "turnover": 5559554880.0,
-   "ratio": 1.0,
-   "net": 5559554880.0
-  },
-  {
-   "code": "Y",
-   "name": "豆油",
-   "exchange": "大商所",
-   "contract": "y2701",
-   "close": 8895.0,
-   "chg_pct": 0.23,
-   "turnover": 8031114700.0,
-   "ratio": 0.688,
-   "net": 5521391356.25
+   "turnover": 5584010400.0,
+   "ratio": 0.875,
+   "net": 4886009100.0
   },
   {
    "code": "AO",
    "name": "氧化铝",
    "exchange": "上期所",
    "contract": "ao2701",
-   "close": 2734.0,
-   "chg_pct": 1.45,
-   "turnover": 6317552940.0,
-   "ratio": 0.739,
-   "net": 4669495651.304348
+   "close": 2731.0,
+   "chg_pct": 1.34,
+   "turnover": 6465699060.0,
+   "ratio": 0.609,
+   "net": 3935642906.086957
   },
   {
    "code": "OI",
@@ -143,20 +143,42 @@
    "contract": "OI701",
    "close": 10172.0,
    "chg_pct": 0.6,
-   "turnover": 6970164360.0,
+   "turnover": 6986007720.0,
    "ratio": 0.507,
-   "net": 3532823031.7808223
+   "net": 3540853227.9452057
+  },
+  {
+   "code": "TA",
+   "name": "PTA",
+   "exchange": "郑商所",
+   "contract": "TA701",
+   "close": 6304.0,
+   "chg_pct": 1.06,
+   "turnover": 13236238200.0,
+   "ratio": 0.263,
+   "net": 3483220578.9473677
   },
   {
    "code": "PP",
    "name": "聚丙烯",
    "exchange": "大商所",
    "contract": "pp2701",
-   "close": 8763.0,
-   "chg_pct": 1.27,
-   "turnover": 12157745085.0,
-   "ratio": 0.245,
-   "net": 2982088417.075471
+   "close": 8765.0,
+   "chg_pct": 1.29,
+   "turnover": 12178516905.0,
+   "ratio": 0.283,
+   "net": 3446750067.4528294
+  },
+  {
+   "code": "CU",
+   "name": "铜",
+   "exchange": "上期所",
+   "contract": "cu2610",
+   "close": 109830.0,
+   "chg_pct": 0.19,
+   "turnover": 7520802000.0,
+   "ratio": 0.355,
+   "net": 2668671677.419354
   },
   {
    "code": "I",
@@ -165,20 +187,9 @@
    "contract": "i2701",
    "close": 715.0,
    "chg_pct": -0.07,
-   "turnover": 5538116050.0,
+   "turnover": 5550347850.0,
    "ratio": 0.455,
-   "net": 2517325477.2727275
-  },
-  {
-   "code": "BR",
-   "name": "合成橡胶",
-   "exchange": "上期所",
-   "contract": "br2611",
-   "close": 14970.0,
-   "chg_pct": 2.22,
-   "turnover": 6437813775.0,
-   "ratio": 0.351,
-   "net": 2261934569.5945945
+   "net": 2522885386.3636365
   },
   {
    "code": "NR",
@@ -187,9 +198,20 @@
    "contract": "nr2611",
    "close": 16040.0,
    "chg_pct": 1.01,
-   "turnover": 3330430850.0,
+   "turnover": 3333157450.0,
    "ratio": 0.641,
-   "net": 2134891570.5128202
+   "net": 2136639391.0256407
+  },
+  {
+   "code": "BR",
+   "name": "合成橡胶",
+   "exchange": "上期所",
+   "contract": "br2611",
+   "close": 14965.0,
+   "chg_pct": 2.19,
+   "turnover": 6446718775.0,
+   "ratio": 0.324,
+   "net": 2090827710.810811
   },
   {
    "code": "PT",
@@ -203,15 +225,37 @@
    "net": 2027437539.4736843
   },
   {
-   "code": "TA",
-   "name": "PTA",
-   "exchange": "郑商所",
-   "contract": "TA701",
-   "close": 6298.0,
-   "chg_pct": 0.96,
-   "turnover": 13201704640.0,
-   "ratio": 0.105,
-   "net": 1389653120.0000014
+   "code": "NI",
+   "name": "镍",
+   "exchange": "上期所",
+   "contract": "ni2610",
+   "close": 123320.0,
+   "chg_pct": -0.62,
+   "turnover": 4920855710.0,
+   "ratio": 0.408,
+   "net": 2009926980.1408446
+  },
+  {
+   "code": "SN",
+   "name": "锡",
+   "exchange": "上期所",
+   "contract": "sn2610",
+   "close": 408170.0,
+   "chg_pct": 0.17,
+   "turnover": 13349271180.0,
+   "ratio": 0.138,
+   "net": 1845719166.3665588
+  },
+  {
+   "code": "HC",
+   "name": "热卷",
+   "exchange": "上期所",
+   "contract": "hc2701",
+   "close": 3302.0,
+   "chg_pct": 0.36,
+   "turnover": 5377596340.0,
+   "ratio": 0.333,
+   "net": 1792532113.333333
   },
   {
    "code": "SF",
@@ -225,48 +269,15 @@
    "net": 1363167322.7586205
   },
   {
-   "code": "NI",
-   "name": "镍",
-   "exchange": "上期所",
-   "contract": "ni2610",
-   "close": 123280.0,
-   "chg_pct": -0.65,
-   "turnover": 4397776110.0,
-   "ratio": 0.296,
-   "net": 1300750680.4225354
-  },
-  {
-   "code": "HC",
-   "name": "热卷",
-   "exchange": "上期所",
-   "contract": "hc2701",
-   "close": 3301.0,
-   "chg_pct": 0.33,
-   "turnover": 5354413430.0,
-   "ratio": 0.2,
-   "net": 1070882685.9999998
-  },
-  {
-   "code": "SS",
-   "name": "不锈钢",
-   "exchange": "上期所",
-   "contract": "ss2611",
-   "close": 13665.0,
-   "chg_pct": -0.22,
-   "turnover": 3633558100.0,
-   "ratio": 0.2,
-   "net": 726711619.9999999
-  },
-  {
-   "code": "CU",
-   "name": "铜",
-   "exchange": "上期所",
-   "contract": "cu2610",
-   "close": 109790.0,
-   "chg_pct": 0.16,
-   "turnover": 7236911550.0,
-   "ratio": 0.097,
-   "net": 700346279.0322574
+   "code": "L",
+   "name": "聚乙烯",
+   "exchange": "大商所",
+   "contract": "l2701",
+   "close": 8415.0,
+   "chg_pct": 1.17,
+   "turnover": 9487731645.0,
+   "ratio": 0.109,
+   "net": 1035025270.3636367
   },
   {
    "code": "PF",
@@ -275,9 +286,9 @@
    "contract": "PF611",
    "close": 8382.0,
    "chg_pct": 0.82,
-   "turnover": 4558426700.0,
+   "turnover": 4561443500.0,
    "ratio": 0.137,
-   "net": 625666409.8039213
+   "net": 626080480.3921567
   },
   {
    "code": "SA",
@@ -286,31 +297,9 @@
    "contract": "SA701",
    "close": 1013.0,
    "chg_pct": 0.6,
-   "turnover": 9326893600.0,
+   "turnover": 9346728140.0,
    "ratio": 0.067,
-   "net": 621792906.6666665
-  },
-  {
-   "code": "FU",
-   "name": "燃油",
-   "exchange": "上期所",
-   "contract": "fu2611",
-   "close": 4298.0,
-   "chg_pct": 2.33,
-   "turnover": 13536140370.0,
-   "ratio": 0.041,
-   "net": 556279741.232876
-  },
-  {
-   "code": "SN",
-   "name": "锡",
-   "exchange": "上期所",
-   "contract": "sn2610",
-   "close": 408020.0,
-   "chg_pct": 0.13,
-   "turnover": 12769609360.0,
-   "ratio": 0.042,
-   "net": 533777883.21543443
+   "net": 623115209.3333333
   },
   {
    "code": "UR",
@@ -324,15 +313,26 @@
    "net": 529337592.0000005
   },
   {
-   "code": "L",
-   "name": "聚乙烯",
+   "code": "J",
+   "name": "焦炭",
    "exchange": "大商所",
-   "contract": "l2701",
-   "close": 8412.0,
-   "chg_pct": 1.13,
-   "turnover": 9472798810.0,
-   "ratio": 0.055,
-   "net": 516698116.90909004
+   "contract": "j2701",
+   "close": 1966.0,
+   "chg_pct": 0.69,
+   "turnover": 2515086350.0,
+   "ratio": 0.122,
+   "net": 306717847.5609759
+  },
+  {
+   "code": "AL",
+   "name": "铝",
+   "exchange": "上期所",
+   "contract": "al2611",
+   "close": 24340.0,
+   "chg_pct": -0.25,
+   "turnover": 5767161300.0,
+   "ratio": 0.048,
+   "net": 274626728.5714289
   },
   {
    "code": "CJ",
@@ -346,15 +346,37 @@
    "net": 247705238.46153757
   },
   {
-   "code": "J",
-   "name": "焦炭",
-   "exchange": "大商所",
-   "contract": "j2701",
-   "close": 1965.0,
-   "chg_pct": 0.64,
-   "turnover": 2512138500.0,
-   "ratio": 0.024,
-   "net": 61271670.73170737
+   "code": "FU",
+   "name": "燃油",
+   "exchange": "上期所",
+   "contract": "fu2611",
+   "close": 4297.0,
+   "chg_pct": 2.31,
+   "turnover": 13575678360.0,
+   "ratio": 0.014,
+   "net": 185968196.7123295
+  },
+  {
+   "code": "SS",
+   "name": "不锈钢",
+   "exchange": "上期所",
+   "contract": "ss2611",
+   "close": 13655.0,
+   "chg_pct": -0.29,
+   "turnover": 3765522500.0,
+   "ratio": 0.0,
+   "net": 0.0
+  },
+  {
+   "code": "CF",
+   "name": "棉花",
+   "exchange": "郑商所",
+   "contract": "CF701",
+   "close": 15745.0,
+   "chg_pct": -0.03,
+   "turnover": 7541146475.0,
+   "ratio": 0.0,
+   "net": 0.0
   },
   {
    "code": "FG",
@@ -363,7 +385,7 @@
    "contract": "FG701",
    "close": 910.0,
    "chg_pct": 0.33,
-   "turnover": 6993404600.0,
+   "turnover": 7019649000.0,
    "ratio": 0.0,
    "net": 0.0
   },
@@ -383,11 +405,11 @@
    "name": "棉纱",
    "exchange": "郑商所",
    "contract": "CY611",
-   "close": 21715.0,
-   "chg_pct": 0.12,
-   "turnover": 232892000.0,
-   "ratio": -0.2,
-   "net": -46578399.99999999
+   "close": 21720.0,
+   "chg_pct": 0.14,
+   "turnover": 233000625.0,
+   "ratio": -0.1,
+   "net": -23300062.499999996
   },
   {
    "code": "ZN",
@@ -396,9 +418,9 @@
    "contract": "zn2611",
    "close": 26675.0,
    "chg_pct": 0.41,
-   "turnover": 5602820850.0,
+   "turnover": 5808890675.0,
    "ratio": -0.03,
-   "net": -169782449.99999985
+   "net": -176026990.151515
   },
   {
    "code": "SM",
@@ -423,17 +445,6 @@
    "net": -323852790.0000001
   },
   {
-   "code": "CS",
-   "name": "玉米淀粉",
-   "exchange": "大商所",
-   "contract": "cs2611",
-   "close": 2441.0,
-   "chg_pct": 0.0,
-   "turnover": 1043801910.0,
-   "ratio": -0.75,
-   "net": -782851432.5
-  },
-  {
    "code": "EC",
    "name": "集运指数",
    "exchange": "能源中心",
@@ -445,26 +456,15 @@
    "net": -802373717.4295774
   },
   {
-   "code": "CF",
-   "name": "棉花",
-   "exchange": "郑商所",
-   "contract": "CF701",
-   "close": 15740.0,
-   "chg_pct": -0.06,
-   "turnover": 7532408000.0,
-   "ratio": -0.125,
-   "net": -941551000.0
-  },
-  {
-   "code": "AG",
-   "name": "白银",
-   "exchange": "上期所",
-   "contract": "ag2610",
-   "close": 16176.0,
-   "chg_pct": -0.53,
-   "turnover": 22027396650.0,
-   "ratio": -0.05,
-   "net": -1095284916.2983422
+   "code": "CS",
+   "name": "玉米淀粉",
+   "exchange": "大商所",
+   "contract": "cs2611",
+   "close": 2439.0,
+   "chg_pct": -0.08,
+   "turnover": 1047535320.0,
+   "ratio": -1.0,
+   "net": -1047535320.0
   },
   {
    "code": "PB",
@@ -473,20 +473,9 @@
    "contract": "pb2611",
    "close": 16350.0,
    "chg_pct": 0.15,
-   "turnover": 3718796025.0,
+   "turnover": 3757558450.0,
    "ratio": -0.333,
-   "net": -1239598675.0000002
-  },
-  {
-   "code": "AL",
-   "name": "铝",
-   "exchange": "上期所",
-   "contract": "al2611",
-   "close": 24325.0,
-   "chg_pct": -0.31,
-   "turnover": 5565756750.0,
-   "ratio": -0.238,
-   "net": -1325180178.5714288
+   "net": -1252519483.3333335
   },
   {
    "code": "B",
@@ -495,9 +484,9 @@
    "contract": "b2611",
    "close": 4069.0,
    "chg_pct": -0.02,
-   "turnover": 3470603430.0,
+   "turnover": 3472841650.0,
    "ratio": -0.4,
-   "net": -1388241372.0
+   "net": -1389136660.0
   },
   {
    "code": "PK",
@@ -515,22 +504,22 @@
    "name": "烧碱",
    "exchange": "郑商所",
    "contract": "SH611",
-   "close": 1888.0,
-   "chg_pct": 0.27,
-   "turnover": 5710125900.0,
-   "ratio": -0.391,
-   "net": -2234397091.3043475
+   "close": 1889.0,
+   "chg_pct": 0.32,
+   "turnover": 5718762540.0,
+   "ratio": -0.304,
+   "net": -1740492946.9565217
   },
   {
-   "code": "C",
-   "name": "玉米",
+   "code": "A",
+   "name": "豆一",
    "exchange": "大商所",
-   "contract": "c2611",
-   "close": 2184.0,
-   "chg_pct": -0.05,
-   "turnover": 4305931300.0,
-   "ratio": -0.6,
-   "net": -2583558780.0
+   "contract": "a2611",
+   "close": 4896.0,
+   "chg_pct": -0.31,
+   "turnover": 3637809880.0,
+   "ratio": -0.68,
+   "net": -2473710718.3999996
   },
   {
    "code": "AP",
@@ -544,37 +533,37 @@
    "net": -2905420182.608696
   },
   {
-   "code": "A",
-   "name": "豆一",
-   "exchange": "大商所",
-   "contract": "a2611",
-   "close": 4894.0,
-   "chg_pct": -0.35,
-   "turnover": 3630859390.0,
-   "ratio": -0.84,
-   "net": -3049921887.6
-  },
-  {
    "code": "EB",
    "name": "苯乙烯",
    "exchange": "大商所",
    "contract": "eb2611",
-   "close": 9552.0,
-   "chg_pct": 0.87,
-   "turnover": 11189465195.0,
-   "ratio": -0.308,
-   "net": -3449384007.4812036
+   "close": 9555.0,
+   "chg_pct": 0.9,
+   "turnover": 11203316740.0,
+   "ratio": -0.263,
+   "net": -2948241247.3684216
   },
   {
-   "code": "SC",
-   "name": "原油",
+   "code": "AG",
+   "name": "白银",
    "exchange": "上期所",
-   "contract": "sc2611",
-   "close": 747.5,
-   "chg_pct": 2.68,
-   "turnover": 60100957400.0,
-   "ratio": -0.066,
-   "net": -3962700487.912227
+   "contract": "ag2610",
+   "close": 16169.0,
+   "chg_pct": -0.58,
+   "turnover": 23484855870.0,
+   "ratio": -0.127,
+   "net": -2984263453.093923
+  },
+  {
+   "code": "C",
+   "name": "玉米",
+   "exchange": "大商所",
+   "contract": "c2611",
+   "close": 2183.0,
+   "chg_pct": -0.09,
+   "turnover": 4323050080.0,
+   "ratio": -0.8,
+   "net": -3458440064.0
   },
   {
    "code": "SI",
@@ -594,20 +583,31 @@
    "contract": "RM611",
    "close": 2305.0,
    "chg_pct": -1.07,
-   "turnover": 6178508730.0,
+   "turnover": 6191600310.0,
    "ratio": -0.667,
-   "net": -4119005820.0000005
+   "net": -4127733540.0000005
   },
   {
    "code": "P",
    "name": "棕榈油",
    "exchange": "大商所",
    "contract": "p2701",
-   "close": 9861.0,
-   "chg_pct": 0.06,
-   "turnover": 12695710540.0,
-   "ratio": -0.538,
-   "net": -6836151829.230769
+   "close": 9862.0,
+   "chg_pct": 0.07,
+   "turnover": 12721842340.0,
+   "ratio": -0.487,
+   "net": -6197820627.179488
+  },
+  {
+   "code": "SC",
+   "name": "原油",
+   "exchange": "上期所",
+   "contract": "sc2611",
+   "close": 747.2,
+   "chg_pct": 2.64,
+   "turnover": 64419782800.0,
+   "ratio": -0.099,
+   "net": -6371187309.88993
   },
   {
    "code": "LC",
@@ -625,11 +625,11 @@
    "name": "豆粕",
    "exchange": "大商所",
    "contract": "m2701",
-   "close": 3379.0,
-   "chg_pct": -0.53,
-   "turnover": 19055482420.0,
-   "ratio": -0.655,
-   "net": -12484626413.103447
+   "close": 3378.0,
+   "chg_pct": -0.56,
+   "turnover": 19095019790.0,
+   "ratio": -0.724,
+   "net": -13827428123.793104
   },
   {
    "code": "LH",
@@ -647,11 +647,11 @@
    "name": "黄金",
    "exchange": "上期所",
    "contract": "au2610",
-   "close": 941.16,
-   "chg_pct": -0.78,
-   "turnover": 65675531580.0,
-   "ratio": -0.297,
-   "net": -19490802920.51668
+   "close": 940.72,
+   "chg_pct": -0.82,
+   "turnover": 69670600740.0,
+   "ratio": -0.439,
+   "net": -30565166776.25743
   }
  ]
 }
