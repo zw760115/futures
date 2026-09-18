@@ -1,17 +1,17 @@
 {
  "moneyflow": {
-  "last_run": "2026-09-18 18:04:14",
-  "last_success": "2026-09-18 18:04:14",
+  "last_run": "2026-09-18 23:01:49",
+  "last_success": "2026-09-18 23:01:49",
   "status": "ok",
   "asof": "2026-09-18",
   "count": 59,
-  "fetch_time": "2026-09-18 18:02:59"
+  "fetch_time": "2026-09-18 23:01:49"
  },
  "sync": {
-  "last_run": "2026-09-18 22:54:46",
-  "last_success": "2026-09-18 22:54:46",
+  "last_run": "2026-09-18 22:54:59",
+  "last_success": "2026-09-18 22:54:59",
   "status": "ok",
-  "pushed": "skip"
+  "pushed": true
  },
  "profit": {
   "last_run": "2026-09-18 18:04:14",

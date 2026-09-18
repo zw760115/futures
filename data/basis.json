@@ -1,202 +1,202 @@
 {
-  "data_date": "20260917",
-  "generated_at": "2026-09-18T11:17:37",
+  "data_date": "20260918",
+  "generated_at": "2026-09-18T23:01:44",
   "basis": {
     "AU": {
-      "spot": 930.12,
+      "spot": 941.02,
       "dominant_contract": "au2612",
-      "dominant_price": 935.0,
-      "basis": 4.88,
-      "basis_rate": 0.00525
+      "dominant_price": 951.38,
+      "basis": 10.36,
+      "basis_rate": 0.01101
     },
     "AG": {
-      "spot": 15522.33,
+      "spot": 15990.67,
       "dominant_contract": "ag2612",
-      "dominant_price": 15593.0,
-      "basis": 70.67,
-      "basis_rate": 0.00455
+      "dominant_price": 16304.0,
+      "basis": 313.33,
+      "basis_rate": 0.01959
     },
     "AL": {
-      "spot": 24193.33,
+      "spot": 24393.33,
       "dominant_contract": "al2611",
-      "dominant_price": 24225.0,
-      "basis": 31.67,
-      "basis_rate": 0.00131
+      "dominant_price": 24400.0,
+      "basis": 6.67,
+      "basis_rate": 0.00027
     },
     "BR": {
-      "spot": 15730.0,
+      "spot": 15700.0,
       "dominant_contract": "br2611",
-      "dominant_price": 14740.0,
-      "basis": -990.0,
-      "basis_rate": -0.06294
+      "dominant_price": 14645.0,
+      "basis": -1055.0,
+      "basis_rate": -0.0672
     },
     "BU": {
-      "spot": 6100.0,
+      "spot": 6152.5,
       "dominant_contract": "bu2611",
-      "dominant_price": 5383.0,
-      "basis": -717.0,
-      "basis_rate": -0.11754
+      "dominant_price": 5291.0,
+      "basis": -861.5,
+      "basis_rate": -0.14002
     },
     "C": {
-      "spot": 2215.71,
+      "spot": 2214.29,
       "dominant_contract": "c2611",
-      "dominant_price": 2192.0,
-      "basis": -23.71,
-      "basis_rate": -0.0107
+      "dominant_price": 2185.0,
+      "basis": -29.29,
+      "basis_rate": -0.01323
     },
     "CF": {
-      "spot": 17585.67,
+      "spot": 17489.5,
       "dominant_contract": "CF701",
-      "dominant_price": 15830.0,
-      "basis": -1755.67,
-      "basis_rate": -0.09984
+      "dominant_price": 15750.0,
+      "basis": -1739.5,
+      "basis_rate": -0.09946
     },
     "CU": {
-      "spot": 108656.67,
+      "spot": 110235.0,
       "dominant_contract": "cu2610",
-      "dominant_price": 108500.0,
-      "basis": -156.67,
-      "basis_rate": -0.00144
+      "dominant_price": 109620.0,
+      "basis": -615.0,
+      "basis_rate": -0.00558
     },
     "CY": {
       "spot": 25100.0,
       "dominant_contract": "CY611",
-      "dominant_price": 21785.0,
-      "basis": -3315.0,
-      "basis_rate": -0.13207
+      "dominant_price": 21690.0,
+      "basis": -3410.0,
+      "basis_rate": -0.13586
     },
     "EB": {
-      "spot": 10570.0,
+      "spot": 10440.0,
       "dominant_contract": "eb2611",
-      "dominant_price": 9514.0,
-      "basis": -1056.0,
-      "basis_rate": -0.09991
+      "dominant_price": 9470.0,
+      "basis": -970.0,
+      "basis_rate": -0.09291
     },
     "EG": {
-      "spot": 6708.33,
+      "spot": 6683.33,
       "dominant_contract": "eg2610",
-      "dominant_price": 6096.0,
-      "basis": -612.33,
-      "basis_rate": -0.09128
+      "dominant_price": 6007.0,
+      "basis": -676.33,
+      "basis_rate": -0.1012
     },
     "FG": {
       "spot": 1008.0,
       "dominant_contract": "FG701",
-      "dominant_price": 905.0,
-      "basis": -103.0,
-      "basis_rate": -0.10218
+      "dominant_price": 907.0,
+      "basis": -101.0,
+      "basis_rate": -0.1002
     },
     "HC": {
-      "spot": 3328.0,
+      "spot": 3314.0,
       "dominant_contract": "hc2701",
-      "dominant_price": 3317.0,
-      "basis": -11.0,
-      "basis_rate": -0.00331
+      "dominant_price": 3290.0,
+      "basis": -24.0,
+      "basis_rate": -0.00724
     },
     "I": {
-      "spot": 694.89,
+      "spot": 696.44,
       "dominant_contract": "i2701",
-      "dominant_price": 710.5,
-      "basis": 15.61,
-      "basis_rate": 0.02246
+      "dominant_price": 715.5,
+      "basis": 19.06,
+      "basis_rate": 0.02737
     },
     "J": {
       "spot": 2290.0,
       "dominant_contract": "j2701",
-      "dominant_price": 2043.5,
-      "basis": -246.5,
-      "basis_rate": -0.10764
+      "dominant_price": 1952.5,
+      "basis": -337.5,
+      "basis_rate": -0.14738
     },
     "JD": {
-      "spot": 5450.0,
+      "spot": 5425.0,
       "dominant_contract": "jd2611",
-      "dominant_price": 3789.0,
-      "basis": -1661.0,
-      "basis_rate": -0.30477
+      "dominant_price": 3861.0,
+      "basis": -1564.0,
+      "basis_rate": -0.28829
     },
     "JM": {
-      "spot": 2441.25,
+      "spot": 2423.75,
       "dominant_contract": "jm2701",
-      "dominant_price": 1580.0,
-      "basis": -861.25,
-      "basis_rate": -0.35279
+      "dominant_price": 1487.0,
+      "basis": -936.75,
+      "basis_rate": -0.38649
     },
     "L": {
-      "spot": 9510.0,
+      "spot": 9483.33,
       "dominant_contract": "l2701",
-      "dominant_price": 8407.0,
-      "basis": -1103.0,
-      "basis_rate": -0.11598
+      "dominant_price": 8318.0,
+      "basis": -1165.33,
+      "basis_rate": -0.12288
     },
     "LC": {
-      "spot": 131000.0,
+      "spot": 130000.0,
       "dominant_contract": "LC2701",
-      "dominant_price": 131180.0,
-      "basis": 180.0,
-      "basis_rate": 0.00137
+      "dominant_price": 127160.0,
+      "basis": -2840.0,
+      "basis_rate": -0.02185
     },
     "LH": {
-      "spot": 10780.0,
+      "spot": 10770.0,
       "dominant_contract": "lh2611",
-      "dominant_price": 11230.0,
-      "basis": 450.0,
-      "basis_rate": 0.04174
+      "dominant_price": 11060.0,
+      "basis": 290.0,
+      "basis_rate": 0.02693
     },
     "M": {
-      "spot": 3486.0,
+      "spot": 3448.0,
       "dominant_contract": "m2701",
-      "dominant_price": 3477.0,
-      "basis": -9.0,
-      "basis_rate": -0.00258
+      "dominant_price": 3397.0,
+      "basis": -51.0,
+      "basis_rate": -0.01479
     },
     "MA": {
-      "spot": 4030.0,
+      "spot": 3966.67,
       "dominant_contract": "MA701",
-      "dominant_price": 2995.0,
-      "basis": -1035.0,
-      "basis_rate": -0.25682
+      "dominant_price": 2952.0,
+      "basis": -1014.67,
+      "basis_rate": -0.2558
     },
     "NI": {
-      "spot": 125400.0,
+      "spot": 125866.67,
       "dominant_contract": "ni2611",
-      "dominant_price": 123780.0,
-      "basis": -1620.0,
-      "basis_rate": -0.01292
+      "dominant_price": 124280.0,
+      "basis": -1586.67,
+      "basis_rate": -0.01261
     },
     "OI": {
-      "spot": 10608.0,
+      "spot": 10518.0,
       "dominant_contract": "OI701",
-      "dominant_price": 10146.0,
-      "basis": -462.0,
-      "basis_rate": -0.04355
+      "dominant_price": 10111.0,
+      "basis": -407.0,
+      "basis_rate": -0.0387
     },
     "P": {
-      "spot": 9656.0,
+      "spot": 9520.0,
       "dominant_contract": "p2701",
-      "dominant_price": 9959.0,
-      "basis": 303.0,
-      "basis_rate": 0.03138
+      "dominant_price": 9855.0,
+      "basis": 335.0,
+      "basis_rate": 0.03519
     },
     "PB": {
-      "spot": 15956.25,
+      "spot": 16300.0,
       "dominant_contract": "pb2611",
-      "dominant_price": 16130.0,
-      "basis": 173.75,
-      "basis_rate": 0.01089
+      "dominant_price": 16325.0,
+      "basis": 25.0,
+      "basis_rate": 0.00153
     },
     "PF": {
-      "spot": 8802.67,
+      "spot": 8641.92,
       "dominant_contract": "PF611",
-      "dominant_price": 8530.0,
-      "basis": -272.67,
-      "basis_rate": -0.03098
+      "dominant_price": 8314.0,
+      "basis": -327.92,
+      "basis_rate": -0.03795
     },
     "PP": {
       "spot": 10116.67,
       "dominant_contract": "pp2701",
-      "dominant_price": 8766.0,
-      "basis": -1350.67,
-      "basis_rate": -0.13351
+      "dominant_price": 8653.0,
+      "basis": -1463.67,
+      "basis_rate": -0.14468
     },
     "PS": {
       "spot": 40000.0,
@@ -206,123 +206,123 @@
       "basis_rate": -0.08775
     },
     "PX": {
-      "spot": 9600.0,
+      "spot": 9800.0,
       "dominant_contract": "PX611",
-      "dominant_price": 9376.0,
-      "basis": -224.0,
-      "basis_rate": -0.02333
+      "dominant_price": 9160.0,
+      "basis": -640.0,
+      "basis_rate": -0.06531
     },
     "RB": {
-      "spot": 3161.0,
+      "spot": 3148.34,
       "dominant_contract": "rb2701",
-      "dominant_price": 3122.0,
-      "basis": -39.0,
-      "basis_rate": -0.01234
+      "dominant_price": 3096.0,
+      "basis": -52.34,
+      "basis_rate": -0.01662
     },
     "RM": {
-      "spot": 2494.0,
+      "spot": 2476.0,
       "dominant_contract": "RM701",
-      "dominant_price": 2425.0,
-      "basis": -69.0,
-      "basis_rate": -0.02767
+      "dominant_price": 2357.0,
+      "basis": -119.0,
+      "basis_rate": -0.04806
     },
     "SA": {
       "spot": 1077.14,
       "dominant_contract": "SA701",
-      "dominant_price": 1006.0,
-      "basis": -71.14,
-      "basis_rate": -0.06605
+      "dominant_price": 1007.0,
+      "basis": -70.14,
+      "basis_rate": -0.06512
     },
     "SF": {
       "spot": 5778.57,
       "dominant_contract": "SF611",
-      "dominant_price": 6052.0,
-      "basis": 273.43,
-      "basis_rate": 0.04732
+      "dominant_price": 6018.0,
+      "basis": 239.43,
+      "basis_rate": 0.04143
     },
     "SI": {
       "spot": 9460.0,
       "dominant_contract": "SI2611",
-      "dominant_price": 8445.0,
-      "basis": -1015.0,
-      "basis_rate": -0.10729
+      "dominant_price": 8410.0,
+      "basis": -1050.0,
+      "basis_rate": -0.11099
     },
     "SM": {
-      "spot": 5702.0,
+      "spot": 5690.0,
       "dominant_contract": "SM611",
-      "dominant_price": 5796.0,
-      "basis": 94.0,
-      "basis_rate": 0.01649
+      "dominant_price": 5786.0,
+      "basis": 96.0,
+      "basis_rate": 0.01687
     },
     "SN": {
-      "spot": 399525.0,
+      "spot": 404900.0,
       "dominant_contract": "sn2610",
-      "dominant_price": 401680.0,
-      "basis": 2155.0,
-      "basis_rate": 0.00539
+      "dominant_price": 407490.0,
+      "basis": 2590.0,
+      "basis_rate": 0.0064
     },
     "SP": {
-      "spot": 4850.0,
+      "spot": 4880.0,
       "dominant_contract": "sp2611",
-      "dominant_price": 4740.0,
-      "basis": -110.0,
-      "basis_rate": -0.02268
+      "dominant_price": 4836.0,
+      "basis": -44.0,
+      "basis_rate": -0.00902
     },
     "SR": {
-      "spot": 5183.33,
+      "spot": 5176.67,
       "dominant_contract": "SR701",
-      "dominant_price": 5335.0,
-      "basis": 151.67,
-      "basis_rate": 0.02926
+      "dominant_price": 5322.0,
+      "basis": 145.33,
+      "basis_rate": 0.02807
     },
     "SS": {
-      "spot": 14033.33,
+      "spot": 14100.0,
       "dominant_contract": "ss2611",
-      "dominant_price": 13595.0,
-      "basis": -438.33,
-      "basis_rate": -0.03123
+      "dominant_price": 13695.0,
+      "basis": -405.0,
+      "basis_rate": -0.02872
     },
     "TA": {
-      "spot": 7362.2,
+      "spot": 7108.8,
       "dominant_contract": "TA701",
-      "dominant_price": 6388.0,
-      "basis": -974.2,
-      "basis_rate": -0.13232
+      "dominant_price": 6238.0,
+      "basis": -870.8,
+      "basis_rate": -0.1225
     },
     "UR": {
-      "spot": 1802.5,
+      "spot": 1800.0,
       "dominant_contract": "UR701",
-      "dominant_price": 1778.0,
-      "basis": -24.5,
-      "basis_rate": -0.01359
+      "dominant_price": 1768.0,
+      "basis": -32.0,
+      "basis_rate": -0.01778
     },
     "V": {
-      "spot": 4710.0,
+      "spot": 4650.0,
       "dominant_contract": "v2701",
-      "dominant_price": 4786.0,
-      "basis": 76.0,
-      "basis_rate": 0.01614
+      "dominant_price": 4703.0,
+      "basis": 53.0,
+      "basis_rate": 0.0114
     },
     "Y": {
-      "spot": 9064.0,
+      "spot": 8934.0,
       "dominant_contract": "y2701",
-      "dominant_price": 8969.0,
-      "basis": -95.0,
-      "basis_rate": -0.01048
+      "dominant_price": 8875.0,
+      "basis": -59.0,
+      "basis_rate": -0.0066
     },
     "ZN": {
-      "spot": 26045.0,
+      "spot": 26483.0,
       "dominant_contract": "zn2611",
-      "dominant_price": 26280.0,
-      "basis": 235.0,
-      "basis_rate": 0.00902
+      "dominant_price": 26565.0,
+      "basis": 82.0,
+      "basis_rate": 0.0031
     },
     "A": {
       "spot": 4510.0,
       "dominant_contract": "a2611",
-      "dominant_price": 5015.0,
-      "basis": 505.0,
-      "basis_rate": 0.11197
+      "dominant_price": 4911.0,
+      "basis": 401.0,
+      "basis_rate": 0.08891
     }
   }
 }
