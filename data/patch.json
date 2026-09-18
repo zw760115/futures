@@ -11889,7 +11889,12 @@
   "term_date": "2026-09-17",
   "exchange": "广期所",
   "name": "工业硅",
-  "code": "SI"
+  "code": "SI",
+  "quad": {
+   "profit": "low",
+   "cost": 8987,
+   "inv_pct": 0
+  }
  },
  "SM": {
   "data_date": "2026-09-10",
