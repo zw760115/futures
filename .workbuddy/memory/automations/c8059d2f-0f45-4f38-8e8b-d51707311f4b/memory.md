@@ -2,6 +2,20 @@
 
 本文件只记录高层执行情况，不含完整产物内容。
 
+## 2026-09-18 18:01（本次）
+- 任务：期限结构刷新 → 利润快照 + 资金流向 → sync_to_site --push → 状态/告警。
+- 结果：**全部成功**，无失败告警。
+  - 期限结构：59/59 成功，term_date=2026-09-18（inv/basis/drivers/data_date 未动）。
+  - 资金流向：59 品种，asof 2026-09-18；净流入前三 AU/AG/SN，净流出前三 SC/JM/M。
+  - 产业利润快照：35 品种，顶层 asof=2026-09-18，28 条 note 依据 9-16~9-18 公开源重写；利润档位无变动，PVC 成本更新为 5329.53。
+  - 推送：直连成功（commit ad36bcb / 8d46cc0 / 64e10f3），REMOTE_V=202609181804.1。
+- 关键处置（后续务必沿用）：
+  1. **代理先探测再决定**：7890 当时 closed（FlClash GUI 未起，只有 clash-verge-service 在跑），eastmoney 直连 200 → 走直连即可。
+  2. **修了 refresh_fundamentals.py 的真 bug**：无代理分支 `opener = urllib.request` → 全部品种静默失败；改为恒用 `build_opener()`。
+  3. fetch_moneyflow.py 会顺带触发一次 sync/push，故**改完利润快照后必须再跑一次** `sync_to_site.py --push`。
+  4. `快照更新状态.json` 的 `profit` 段没人写，需显式 notify.write_status('profit',...) 后再推一次。
+- 操作提示：利润快照刷新用一次性脚本（json.load → 按 code 更新 profit/cost/asof/src/note → assert 品种集合不变 → 双目录写盘 + .bak → json.load 校验），跑完删掉；本次已从 git 移除残留。
+
 ## 2026-09-17 17:45（首次记录）
 
 - 任务：刷新「产业利润快照」（AI 联网检索维护）与「资金流向快照」，同步推送 GitHub Pages。

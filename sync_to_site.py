@@ -42,8 +42,10 @@ import notify  # 失败告警 + 更新状态（notify.py 同目录，写入 ~/De
 
 REPO = os.path.dirname(os.path.abspath(__file__))
 UPD_OUT = os.path.join(REPO, 'data', 'update_status.json')
-DESK_DIR = os.path.expanduser('~/Desktop/期货研究数据')
-DL_DIR = os.path.expanduser('~/Downloads/期货研究数据')
+# 2026-09-18 22:35 起：数据唯一真源（桌面/下载不再保留拷贝或软链接）
+DATA_DIR = os.path.expanduser('~/Library/Application Support/期货服务/期货研究数据')
+DESK_DIR = DATA_DIR   # 兼容旧变量名
+DL_DIR = DATA_DIR     # 兼容旧变量名
 PATCH_PATH = os.path.join(REPO, 'data', 'patch.json')
 SNAP_OUT = os.path.join(REPO, 'data', 'profit_snapshot.json')
 SNAP_NAME = '产业利润快照.json'

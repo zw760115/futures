@@ -55,9 +55,10 @@ CODE_EXCHANGE_OVERRIDE = {
     "NR": "能源中心",
 }
 
+# 2026-09-18 22:35 起：数据唯一真源（桌面/下载不再保留拷贝或软链接）
+DATA_DIR = os.path.join(os.path.expanduser("~"), "Library", "Application Support", "期货服务", "期货研究数据")
 SEARCH_DIRS = [
-    os.path.join(os.path.expanduser("~"), "Desktop", "期货研究数据"),
-    os.path.join(os.path.expanduser("~"), "Downloads", "期货研究数据"),
+    DATA_DIR,
     SCRIPT_DIR,
 ]
 
@@ -223,17 +224,12 @@ def find_file(code):
     return None
 
 def target_dirs():
-    dirs = []
-    primary = os.path.join(os.path.expanduser("~"), "Desktop", "期货研究数据")
+    """单一真源：只写 DATA_DIR 一处（2026-09-18 22:35）。"""
     try:
-        os.makedirs(primary, exist_ok=True)
-        dirs.append(primary)
+        os.makedirs(DATA_DIR, exist_ok=True)
     except Exception:
-        dirs.append(SCRIPT_DIR)
-    dl = os.path.join(os.path.expanduser("~"), "Downloads", "期货研究数据")
-    if os.path.isdir(dl):
-        dirs.append(dl)
-    return dirs
+        return [SCRIPT_DIR]
+    return [DATA_DIR]
 
 def _safe_name(s):
     return re.sub(r'[/\\\?%\*:\|"<>\x00-\x1f]', '', str(s or '')).strip()

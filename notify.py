@@ -12,7 +12,8 @@
 """
 import os, sys, json, datetime, subprocess
 
-STATUS_PATH = os.path.expanduser('~/Desktop/期货研究数据/快照更新状态.json')
+DATA_DIR = os.path.expanduser('~/Library/Application Support/期货服务/期货研究数据')
+STATUS_PATH = os.path.join(DATA_DIR, '快照更新状态.json')
 KINDS = ('moneyflow', 'sync', 'profit')
 
 
