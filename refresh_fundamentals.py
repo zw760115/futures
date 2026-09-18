@@ -130,7 +130,9 @@ def _fetch_market(mkt, fields, max_pages=6):
     if proxy:
         from urllib.request import ProxyHandler
         handlers.append(ProxyHandler({"http": proxy, "https": proxy}))
-    opener = urllib.request.build_opener(*handlers) if handlers else urllib.request
+    # 必须统一用 build_opener 返回的 opener 对象：直连时若直接用 urllib.request 模块，
+    # `urllib.request.open` 并不存在（只有 urlopen/urlretrieve），会导致全部品种抓取静默失败。
+    opener = urllib.request.build_opener(*handlers)
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
         "Accept": "application/json, text/javascript, */*; q=0.01",
