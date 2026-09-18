@@ -55,7 +55,7 @@ MF_SNAP_NAME = '资金流向快照.json'
 # 模板内嵌的全部品种 CODE（与 index.html DATA 顶层键一致）
 CODES = set("""A AG AL AP AU B BB BR BU C CF CJ CS CU CY EB EG FB FG FU HC I J JD
 JM JR L LC LH LR M MA NI NR OI P PB PF PK PM PP PS PT RB RI RM RR RS RU SA SC
-SF SH SI SM SN SP SR SS TA UR V WH WR Y ZC ZN""".split())
+SF SH SI SM SN SP SR SS TA UR V WH WR Y ZC ZN AO EC""".split())
 
 SUFFIX = '_库存基差期限结构'
 
