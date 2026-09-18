@@ -16,13 +16,18 @@
      （index.html 的 loadMoneyFlow() 先读本地服务 /api/moneyflow，
        线上版回退读同源 data/moneyflow.json，通道同上）
 
+另：每次运行会先消费「校准回传」
+  ~/Desktop/期货研究数据/_回传/*.json（网页工具栏「⬆ 回传校准」的产物）
+  → 合并进各品种真源 JSON 的 quad → 再生成 patch.json → 各设备一致。
+  处理过的文件归档到 _回传/_done/。
+
 用法：
   python3 sync_to_site.py              # 仅生成上述两份文件（不推送）
   python3 sync_to_site.py --push       # 生成并 git push（自动用 ~/bin/gh 的 token）
 
 注意：
-  - 利润/成本(quad) 不在桌面 JSON 里（是网页手工填的），脚本会保留
-    旧 patch.json 中的 quad，不会被基本面数据冲掉。
+  - 利润/成本(quad) 的优先级：旧 patch.json 里的键保留，但【真源 JSON 里的值优先】
+    （真源是权威；回传校准写进真源后必须能覆盖，否则回传白做）。
   - 每个品种取桌面文件夹里 mtime 最新的那份（兼容带日期后缀的副本）。
   - 推送顺序：直连（清掉继承的代理变量）→ 直连 HTTP/1.1 → 自动探测到的本地代理
     （macOS 系统代理 / FlClash 混合端口 7890 等）。
@@ -350,6 +355,81 @@ def sync_embedded_profit_ref():
     return True
 
 
+INBOX_NAME = '_回传'
+INBOX_DONE = '_done'
+CAL_TYPE = 'futures_calibration_export'
+CAL_KEYS = ('profit', 'cost', 'trend', 'inv_pct', 'basis_pct')
+
+
+def merge_calibration_inbox():
+    """把网页「⬆ 回传校准」导出的校准文件合并进桌面真源 JSON。
+
+    为什么需要：网页上人工填的校准（利润档位/成本/库存分位/库存趋势/基差分位）原本
+    只存在各设备的浏览器 localStorage，天然不跨设备 → 电脑与手机的高阶分值榜单会差一项
+    （SI 工业硅那次就是这么来的）。有了这条通道，校准可以「走出浏览器」变成真源数据。
+
+    流程：页面导出 → 桌面/期货研究数据/_回传/*.json → 本函数合并进对应品种真源 JSON 的 quad
+          → patch.json 带上 → 推送 → 各设备一致。已处理文件归档到 _回传/_done/（保留痕迹，不删）。
+
+    安全：只认带 type 标识的文件；品种按真源 JSON 内部 code 字段匹配（不用文件名，
+          规避 TAPTA_/VPVC_ 那类文件名解析坑）；解析失败/标识不符的文件留在原地不碰。"""
+    inbox = os.path.join(DESK_DIR, INBOX_NAME)
+    if not os.path.isdir(inbox):
+        return 0
+    files = sorted(glob.glob(os.path.join(inbox, '*.json')))
+    if not files:
+        return 0
+    scanned = scan_desk()                      # {code: (mtime, data, fn)}，内部 code 字段优先
+    done_dir = os.path.join(inbox, INBOX_DONE)
+    total = 0
+    for fp in files:
+        fn = os.path.basename(fp)
+        try:
+            payload = json.load(open(fp, encoding='utf-8'))
+        except Exception as e:
+            print(f'  ⚠ 回传文件解析失败，留在原地待处理：{fn}（{e}）')
+            continue
+        if not isinstance(payload, dict) or payload.get('type') != CAL_TYPE:
+            print(f'  ⚠ {fn} 缺少 type={CAL_TYPE} 标识，为避免误合并已跳过（留在原目录）')
+            continue
+        items = payload.get('items') or {}
+        applied, missing = [], []
+        for code, cal in items.items():
+            if not isinstance(cal, dict) or code not in CODES:
+                missing.append(code)
+                continue
+            rec = scanned.get(code)
+            if not rec:
+                missing.append(code)
+                continue
+            data = rec[1]
+            quad = data.get('quad') if isinstance(data.get('quad'), dict) else {}
+            for k in CAL_KEYS:
+                if k in cal and cal[k] is not None:
+                    quad[k] = cal[k]
+            data['quad'] = quad
+            try:
+                with open(os.path.join(DESK_DIR, rec[2]), 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False, indent=1)
+                    f.write('\n')
+                applied.append(code)
+            except Exception as e:
+                print(f'  ⚠ 写入真源失败（{rec[2]}）：{e}')
+                missing.append(code)
+        if applied:
+            total += len(applied)
+        try:
+            os.makedirs(done_dir, exist_ok=True)
+            shutil.move(fp, os.path.join(done_dir, fn))
+        except Exception as e:
+            print(f'  ⚠ 归档 {fn} 失败（校准已合并，无碍）：{e}')
+        print('  ' + ('✓' if applied else '·') + f' 回传 {fn}：已合并 {applied if applied else "无"}'
+              + (f'；真源无对应品种 {missing}' if missing else ''))
+    if total:
+        print(f'✓ 校准回传已并入真源：{total} 个品种（本次 patch.json 会带上，各设备一致）')
+    return total
+
+
 def bump_remote_v():
     """每次推送自动刷新 index.html 的 REMOTE_V。
     所有远程数据（patch/warrant/basis/profit）的 CDN 缓存键都带 ?v=REMOTE_V，
@@ -422,6 +502,9 @@ def export_all():
         print(f'✗ 桌面数据目录不存在: {DESK_DIR}')
         return False
 
+    # 先把网页回传的校准并入真源 JSON（必须在 scan_desk 之前，否则本次 patch 读不到）
+    merge_calibration_inbox()
+
     # 读旧 patch，保留 quad（利润/成本）
     old_patch = {}
     if os.path.exists(PATCH_PATH):
@@ -436,9 +519,19 @@ def export_all():
         merged_codes = []
         for code, (mt, data, fn) in sorted(scanned.items()):
             entry = dict(data)
-            # 保留旧 patch 中的 quad（利润/成本来自网页手工填写，桌面 JSON 不含）
-            if code in old_patch and isinstance(old_patch[code], dict) and old_patch[code].get('quad'):
-                entry['quad'] = old_patch[code]['quad']
+            # quad（利润档/成本/分位校准）：保留旧 patch 里的键，但【真源 JSON 的值优先】。
+            # 真源是权威；且回传校准是写进真源 JSON 的，若让旧 patch 无条件覆盖，回传就白做了。
+            merged_quad = {}
+            if code in old_patch and isinstance(old_patch[code], dict) \
+                    and isinstance(old_patch[code].get('quad'), dict):
+                merged_quad.update(old_patch[code]['quad'])
+            if isinstance(data.get('quad'), dict):
+                merged_quad.update(data['quad'])
+            merged_quad.pop('_m', None)        # 浏览器用的「人工填写标记」，不进补丁
+            if merged_quad:
+                entry['quad'] = merged_quad
+            else:
+                entry.pop('quad', None)
             patch[code] = entry
             merged_codes.append(f'{code}({fn})')
 
