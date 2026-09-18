@@ -11,10 +11,11 @@ sync_copies.py — 期货研究模板「单一数据源」同步器
 用法：
   python3 sync_copies.py            # 仅同步本地两份副本（推荐日常）
   python3 sync_copies.py --push     # 同步 + git commit/push（含 index.html 与脚本自身）
-  python3 sync_copies.py --no-backup # 跳过备份（不推荐）
+  python3 sync_copies.py --backup   # 额外生成带时间戳 _bak_ 备份（默认不生成）
 
 注意：
-  - 覆盖前会自动在目标同目录生成带时间戳的 _bak_ 备份，安全可回滚。
+  - 默认【不生成】文件级 _bak_ 备份：权威源在 git 仓库里，每次改动都有提交历史可回溯，
+    而自动备份只会无限堆积（历史上一度累积 45 份）。确需快照时显式加 --backup。
   - 推 GitHub 走 FlClash 代理（127.0.0.1:7890），无需手动设环境。
 """
 import os
@@ -77,7 +78,7 @@ def git(*args):
 
 def main():
     push = "--push" in sys.argv
-    no_backup = "--no-backup" in sys.argv
+    do_backup = "--backup" in sys.argv        # 默认不生成文件备份（git 已是版本库）
 
     if not CANON.exists():
         log(f"找不到权威源: {CANON}")
@@ -93,7 +94,7 @@ def main():
         if t.resolve() == CANON.resolve():
             log(f"目标与权威源相同，跳过: {t}")
             continue
-        if not no_backup:
+        if do_backup:
             bak = backup_target(t)
             log(f"备份 -> {bak.name}")
         shutil.copy2(CANON, t)
