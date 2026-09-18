@@ -295,6 +295,61 @@ def _git(*args, **kw):
         raise subprocess.CalledProcessError(r.returncode, ['git'] + list(args), r.stdout, r.stderr)
     return r
 
+def sync_embedded_profit_ref():
+    """把线上利润快照（data/profit_snapshot.json）回写进 index.html 内嵌的 PROFIT_REF。
+    为什么：PROFIT_REF 是「利润档位」的唯一来源，而它由【页面内嵌】+【线上快照】两处叠加。
+    各端网络/缓存状况不同（微信常取不到快照）→ 退回内嵌旧默认值 → 同一品种利润档不同
+    → 高阶分值排行各端不一致。把内嵌值与线上快照对齐后，任何设备无论能否联网都算同一份。
+    实现：在 PROFIT_REF 字面量后插入/更新一段带标记的 Object.assign 覆盖块（快照有值的品种才覆盖，
+    内嵌独有的品种如 A 豆一保留原值）。"""
+    html = os.path.join(REPO, 'index.html')
+    snap_path = os.path.join(REPO, 'data', 'profit_snapshot.json')
+    if not os.path.isfile(html) or not os.path.isfile(snap_path):
+        print('  ⚠ 缺少 index.html 或 profit_snapshot.json，跳过内嵌利润同步')
+        return False
+    try:
+        snap = json.load(open(snap_path, encoding='utf-8'))
+    except Exception as e:
+        print(f'  ⚠ 利润快照解析失败：{e}，跳过内嵌利润同步')
+        return False
+    data = snap.get('data') or {}
+    over = {}
+    for code, v in data.items():
+        if isinstance(v, dict) and v.get('profit'):
+            over[code] = {
+                'profit': v.get('profit'),
+                'cost': v.get('cost'),
+                'asof': v.get('asof'),
+                'src': v.get('src'),
+                'note': v.get('note'),
+            }
+    if not over:
+        print('  ⚠ 利润快照无可覆盖项，跳过内嵌利润同步')
+        return False
+    s = open(html, encoding='utf-8').read()
+    block = ('/* === 内嵌利润参考自动同步（sync_to_site.py 生成，勿手改）=== */\n'
+             '/* PROFIT_REF_SYNC_START */\n'
+             'Object.assign(PROFIT_REF, ' + json.dumps(over, ensure_ascii=False) + ');\n'
+             '/* PROFIT_REF_SYNC_END */')
+    m = re.search(r'/\* PROFIT_REF_SYNC_START \*/.*?/\* PROFIT_REF_SYNC_END \*/', s, re.S)
+    if m:
+        s = s[:m.start()] + block + s[m.end():]
+    else:
+        i = s.find('const PROFIT_REF = {')
+        if i < 0:
+            print('  ⚠ 未找到 PROFIT_REF 定义，跳过内嵌利润同步')
+            return False
+        j = s.find('\n};', i)
+        if j < 0:
+            print('  ⚠ PROFIT_REF 定义未闭合，跳过内嵌利润同步')
+            return False
+        j += len('\n};')
+        s = s[:j] + '\n\n' + block + s[j:]
+    open(html, 'w', encoding='utf-8').write(s)
+    print(f'✓ 内嵌利润参考已与线上快照对齐：覆盖 {len(over)} 个品种（asof {snap.get("asof")}）')
+    return True
+
+
 def bump_remote_v():
     """每次推送自动刷新 index.html 的 REMOTE_V。
     所有远程数据（patch/warrant/basis/profit）的 CDN 缓存键都带 ?v=REMOTE_V，
@@ -397,6 +452,9 @@ def export_all():
 
     # 产业利润快照 → 网站同源副本（线上版利润参考库的数据通道）
     export_profit_snapshot()
+
+    # 线上利润快照 → 回写页面内嵌 PROFIT_REF（消除各端利润档来源分叉）
+    sync_embedded_profit_ref()
 
     # 资金流向快照 → 网站同源副本（线上版「当日资金流向」折叠条的数据通道）
     export_moneyflow_snapshot()
