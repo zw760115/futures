@@ -295,8 +295,35 @@ def _git(*args, **kw):
         raise subprocess.CalledProcessError(r.returncode, ['git'] + list(args), r.stdout, r.stderr)
     return r
 
+def bump_remote_v():
+    """每次推送自动刷新 index.html 的 REMOTE_V。
+    所有远程数据（patch/warrant/basis/profit）的 CDN 缓存键都带 ?v=REMOTE_V，
+    把它刷成「年月日时分」时间戳 → 每次推送都让缓存键失效 → 各端（电脑/手机）
+    拉到同一份最新数据，根除榜单因缓存时代不同而不一致的问题。
+    注意：仅改变量不影响任何数据/渲染逻辑。"""
+    html = os.path.join(REPO, 'index.html')
+    if not os.path.isfile(html):
+        return False
+    s = open(html, encoding='utf-8').read()
+    m = re.search(r"const REMOTE_V = '([^']+)';", s)
+    if not m:
+        return False
+    old = m.group(1)
+    base = time.strftime('%Y%m%d%H%M')        # 精确到分钟，每次推送必变
+    if old.startswith(base):                  # 同分钟内多次推送 → 末尾加序号
+        seq = re.search(r'\.(\d+)$', old)
+        n = (int(seq.group(1)) + 1) if seq else 1
+        new = old + '.' + str(n)
+    else:
+        new = base
+    s = s.replace("const REMOTE_V = '%s';" % old, "const REMOTE_V = '%s';" % new, 1)
+    open(html, 'w', encoding='utf-8').write(s)
+    print('✓ REMOTE_V %s → %s（CDN 数据缓存键随之失效，各端将拉同一份最新数据）' % (old, new))
+    return True
+
 def push():
     os.chdir(REPO)
+    bump_remote_v()                           # 推送前先刷新版本戳，使 CDN 缓存失效
     _git('add', '-A')
     if _git('diff', '--cached', '--quiet', check=False).returncode == 0:
         print('（无改动，跳过提交与推送）')
