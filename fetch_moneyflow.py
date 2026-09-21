@@ -103,6 +103,19 @@ def install_futsse_source(mod):
     mod._fetch_market = wrapper
 
 
+# 数据唯一真源（2026-09-18 22:35 起）：数据只在 Library 这一份，桌面/下载不再留拷贝。
+# 但服务的 MF_SNAP_DIRS 是按「脚本自身所在目录」推导的，而本脚本是用 ~/Desktop/期货模板
+# 下的 symlink 路径加载服务 → SCRIPT_DIR 落到桌面模板目录，快照写不进真源目录，
+# 于是 sync_to_site 只能读到服务早先写的旧副本。这里把真源目录显式补进去。
+DATA_DIR = os.path.expanduser('~/Library/Application Support/期货服务/期货研究数据')
+
+
+def ensure_snap_dirs(mod):
+    dirs = getattr(mod, 'MF_SNAP_DIRS', None)
+    if isinstance(dirs, list) and os.path.isdir(DATA_DIR) and DATA_DIR not in dirs:
+        dirs.insert(0, DATA_DIR)
+
+
 def load_service():
     if not os.path.isfile(SERVICE):
         raise SystemExit('未找到 %s' % SERVICE)
@@ -116,6 +129,7 @@ def main():
     try:
         mod = load_service()
         install_futsse_source(mod)
+        ensure_snap_dirs(mod)
         out = mod.build_moneyflow()
         rows = out.get('rows') or []
         if not rows:
