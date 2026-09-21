@@ -8,17 +8,17 @@
   "fetch_time": "2026-09-21 17:54:45"
  },
  "sync": {
-  "last_run": "2026-09-21 17:54:23",
-  "last_success": "2026-09-21 17:54:23",
+  "last_run": "2026-09-21 17:54:52",
+  "last_success": "2026-09-21 17:54:52",
   "status": "ok",
   "pushed": true
  },
  "profit": {
-  "last_run": "2026-09-18 18:04:14",
-  "last_success": "2026-09-18 18:04:14",
+  "last_run": "2026-09-21 17:56:12",
+  "last_success": "2026-09-21 17:56:12",
   "status": "ok",
-  "asof": "2026-09-18",
+  "asof": "2026-09-21",
   "count": 35,
-  "src": "WorkBuddy AI 联网检索（隆众/Mysteel/SMM/百川/卓创/光大/南华等）"
+  "src": "WorkBuddy AI · WebSearch 检索（隆众/钢联 Mysteel/SMM 上海有色/百川盈孚/卓创/生"
  }
 }
