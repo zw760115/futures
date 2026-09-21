@@ -48,6 +48,16 @@ EM_HOSTS = [
     "https://push2his.eastmoney.com",
 ]
 
+# 2026-09-21：push2*.eastmoney.com 在本机被网络整体重置（TLS 握手成功、请求发出后
+# 直接被空回复掐断，RemoteDisconnected；偶尔才通一次），走不走代理都一样。
+# 东财期货频道接口 futsseapi.eastmoney.com/list/<market> 稳定可用，且一次分页即可
+# 返回该交易所全部合约（含 最新价 p / 涨跌幅 zdf / 成交量 vol / 持仓量 ccl）。
+# 因此改为首选源，push2 仅作兜底。
+FUTSSE_HOST = "https://futsseapi.eastmoney.com"
+FUTSSE_REFERER = "https://futures.eastmoney.com/"
+# 同一交易所只抓一次（原实现是每个品种重复抓同一市场，59 个品种 = 59 轮无效请求）
+_MARKET_CACHE = {}
+
 # 交易所覆盖：COMMODITIES 里个别品种标错了实际挂牌交易所，抓取时按此表纠正。
 # 原油(SC)、20号胶(NR) 实际在 上海国际能源交易中心(INE, m:142)，模板里误标为「上期所」。
 CODE_EXCHANGE_OVERRIDE = {
@@ -124,7 +134,56 @@ def load_commodities():
     return []
 
 # ---------- 抓取单个交易所全部合约 ----------
+def _fetch_market_futsse(mkt):
+    """首选源：东财期货频道 /list/<mkt>，一次返回该交易所全部合约。
+
+    返回行结构与 push2 clist 对齐：
+      f12 合约代码 / f14 名称 / f43|f2 最新价 / f3|f170 涨跌幅% / f5 成交量 / f78 持仓量
+    """
+    num = str(mkt).split(":")[-1]
+    url = (f"{FUTSSE_HOST}/list/{num}?orderBy=dm&sort=asc&pageSize=500&pageIndex=0"
+           + "&field=dm,sc,name,p,zde,zdf,vol,ccl")
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Accept-Language": "zh-CN,zh;q=0.9",
+        "Referer": FUTSSE_REFERER,
+    }
+    opener = urllib.request.build_opener()
+    req = urllib.request.Request(url, headers=headers)
+    with opener.open(req, timeout=15) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    out = []
+    for it in (data.get("list") or []):
+        dm = it.get("dm")
+        if not dm:
+            continue
+        px = _num(it.get("p"))
+        zdf = _num(it.get("zdf"))
+        out.append({
+            "f12": str(dm),
+            "f14": it.get("name") or "",
+            "f43": px,
+            "f2": px,
+            "f3": zdf,
+            "f170": zdf,
+            "f5": _num(it.get("vol")),
+            "f78": _num(it.get("ccl")),
+        })
+    return out
+
+
 def _fetch_market(mkt, fields, max_pages=6):
+    if mkt in _MARKET_CACHE:
+        return _MARKET_CACHE[mkt]
+    try:
+        items = _fetch_market_futsse(mkt)
+        if items:
+            _MARKET_CACHE[mkt] = items
+            return items
+        print(f"  ⚠ 期货频道接口 {mkt} 返回空，回退 push2")
+    except Exception as e:
+        print(f"  ⚠ 期货频道接口 {mkt} 失败: {e}，回退 push2")
     ctx = ssl.create_default_context()
     proxy = os.environ.get("HTTP_PROXY") or os.environ.get("http_proxy")
     handlers = []
@@ -167,6 +226,7 @@ def _fetch_market(mkt, fields, max_pages=6):
             if last_err:
                 print(f"  ⚠ 交易所 {mkt} 第{page}页抓取失败: {last_err}")
             break
+    _MARKET_CACHE[mkt] = out
     return out
 
 def _build_term(code, ex, items):
@@ -190,11 +250,20 @@ def _build_term(code, ex, items):
         if chg is None:
             chg = _num(it.get("f3"))
         chg_str = (("+" if chg >= 0 else "") + f"{chg:.2f}%") if chg is not None else "—"
-        vol = _num(it.get("f5")) or 0
-        oi_str = f"{int(vol):,}" if vol else "—"
+        # 第 5 列是「持仓量」：优先 f78（持仓），延迟源缺持仓时退用 f5（成交量）
+        oi = _num(it.get("f78"))
+        if oi is None:
+            oi = _num(it.get("f5"))
+        oi_str = f"{int(oi):,}" if oi else "—"
         table.append([full, _contract_ym(full), px, px, oi_str, chg_str])
-    # 主力 = 成交量最大
-    best = max(range(len(rows_all)), key=lambda i: (_num(rows_all[i].get("f5")) or 0))
+    # 主力 = 持仓量最大（无持仓字段时退用成交量），与网页「按最大持仓修正」的口径一致
+    def _main_key(idx):
+        r = rows_all[idx]
+        oi = _num(r.get("f78"))
+        if oi is None:
+            oi = _num(r.get("f5"))
+        return oi or 0
+    best = max(range(len(rows_all)), key=_main_key)
     mn, mx = min(settle), max(settle)
     pad = (mx - mn) * 0.15 or (mn * 0.02 or 1)
     return {

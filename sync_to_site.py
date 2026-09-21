@@ -564,6 +564,14 @@ def sync_push():
     try:
         res = push()
         notify.write_status('sync', ok=True, pushed=(res == 'pushed'))
+        # 推送成功后：把权威源 index.html（内嵌了最新利润快照/REMOTE_V）同步到
+        # 桌面双击版 / Downloads 便携版 / 服务模板副本（桌面软链直通 Library 真身），
+        # 否则本地 8766 页面会停在旧版 → 与线上评分口径不一致（2026-09-18 实测踩坑）。
+        try:
+            subprocess.run([sys.executable, os.path.join(HERE, 'sync_copies.py')],
+                           check=False, timeout=120)
+        except Exception as _e:
+            print('⚠ 副本同步失败（不影响线上，可手动跑 sync_copies.py）:', _e)
         return res
     except SystemExit:
         # 子函数以 sys.exit(1) 表达失败（如推送 / token 失败）→ 已打印原因，补通知 + 状态

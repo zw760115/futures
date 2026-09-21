@@ -18,7 +18,7 @@
 
 用法：python3 fetch_moneyflow.py
 """
-import os, sys, json, importlib.util, traceback
+import os, sys, json, importlib.util, traceback, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
@@ -27,6 +27,80 @@ import notify
 
 TPL_DIR = os.path.expanduser('~/Desktop/期货模板')
 SERVICE = os.path.join(TPL_DIR, '期货行情服务.py')
+
+# ---------------------------------------------------------------------------
+# 2026-09-21：东财 push2*.eastmoney.com 在本机被网络整体重置——TLS 握手成功、请求发出后
+# 直接被空回复掐断（RemoteDisconnected），服务自带的 5 个行情域名全部不可用，资金流向
+# 连续抓不到。实测东财期货频道接口 futsseapi.eastmoney.com/list/<mkt> 稳定可用，且字段齐全：
+#   o/h/l 开高低 · p 最新 · zjsj 昨结算 · vol 成交量 · cje 成交额 · ccl 持仓量
+# 这里把它映射成服务内部沿用的 push2 字段名（f2/f5/f6/f15/f16/f18/f12/f14），运行时
+# 替换服务模块的 _fetch_market，**不改动服务源码**，build_moneyflow 的算法与网页口径不变。
+FUTSSE_HOST = 'https://futsseapi.eastmoney.com'
+FUTSSE_FIELDS = 'dm,sc,name,p,zde,zdf,vol,ccl,o,h,l,zjsj,cje'
+
+
+def _num(v):
+    if v is None:
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    s = str(v).strip()
+    if s in ('', '-', '--'):
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def _futsse_market(mkt, fields=None, pz=100, max_pages=8):
+    """一次取回该交易所全部合约，转成 push2 行结构。"""
+    num = str(mkt).split(':')[-1]
+    url = (FUTSSE_HOST + '/list/' + num + '?orderBy=dm&sort=asc&pageSize=500&pageIndex=0'
+           + '&field=' + FUTSSE_FIELDS)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Referer': 'https://futures.eastmoney.com/',
+    }
+    with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=20) as resp:
+        data = json.loads(resp.read().decode('utf-8'))
+    out = []
+    for it in (data.get('list') or []):
+        dm = it.get('dm')
+        if not dm:
+            continue
+        px = _num(it.get('p'))
+        zde = _num(it.get('zde'))
+        # 昨收 = 最新 - 涨跌额；缺涨跌额时退用昨结算
+        prev = (px - zde) if (px is not None and zde is not None) else _num(it.get('zjsj'))
+        out.append({
+            'f12': str(dm), 'f14': it.get('name') or '',
+            'f2': px, 'f5': _num(it.get('vol')), 'f6': _num(it.get('cje')),
+            'f15': _num(it.get('h')), 'f16': _num(it.get('l')),
+            'f18': prev, 'f78': _num(it.get('ccl')),
+        })
+    return out
+
+
+def install_futsse_source(mod):
+    """用期货频道接口替换服务模块的行情抓取（失败自动回退原实现）。"""
+    orig = getattr(mod, '_fetch_market', None)
+    if orig is None:
+        return
+
+    def wrapper(mkt, fields=None, pz=100, max_pages=8):
+        try:
+            rows = _futsse_market(mkt, fields, pz, max_pages)
+            if rows:
+                return rows
+            print('  ⚠ 期货频道 %s 返回空，回退 push2' % mkt)
+        except Exception as e:
+            print('  ⚠ 期货频道 %s 失败: %s，回退 push2' % (mkt, e))
+        return orig(mkt, fields, pz, max_pages)
+
+    mod._fetch_market = wrapper
 
 
 def load_service():
@@ -41,6 +115,7 @@ def load_service():
 def main():
     try:
         mod = load_service()
+        install_futsse_source(mod)
         out = mod.build_moneyflow()
         rows = out.get('rows') or []
         if not rows:
