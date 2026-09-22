@@ -2,7 +2,27 @@
 
 本文件只记录高层执行情况，不含完整产物内容。
 
-## 2026-09-18 18:01（本次）
+## 2026-09-21 17:45（本次）
+- 任务：期限结构刷新 → 利润快照 + 资金流向 → sync_to_site --push → 状态/告警。
+- 结果：**全部成功**，无失败告警。
+  - 期限结构：59/59 成功，term_date=2026-09-21；每个品种合约数由"一键下载"的 6 条补齐到 10-35 条，主力按**持仓量最大**修正。
+  - 资金流向：59 品种，asof 2026-09-21；净流入前三 BU/JM/SP，净流出前三 AU/AG/SC。
+  - 产业利润快照：35 品种全部 asof=2026-09-21，note/src 依 9-21 公开源（华安/格林大华/国都/福能/光大/上海中期/瑞达/先锋 + Mysteel/SMM/隆众/CCF/卓创/生意社/内蒙古粮储局）重写；利润档位无变动；cost 无同口径新值→一律保留原值。
+  - 推送：直连不通（3s 探测即跳过）→ 走代理 127.0.0.1:7890 成功；commit da3974b / 55f1a70 / 4fd5903，REMOTE_V=202609211756。
+- **本次最大变更：东财行情源整体迁移**
+  1. `push2*` 全部 7 个域名当日**同时被掐**（TLS 通、请求发出后空回复 RemoteDisconnected），走代理/直连/沙箱内外部都一样，成功率 ~0-5% —— 不是本机代理问题。
+  2. 改用 **`futsseapi.eastmoney.com/list/<mkt>`**（`Referer: https://futures.eastmoney.com/`，`pageSize=500` 一次拿全交易所全部合约，字段含 o/h/l/cje/ccl），实测 6/6 交易所稳定。
+  3. `refresh_fundamentals.py`：新增 futsse 源 + **模块级 `_MARKET_CACHE`**（原来每个品种都重抓同一交易所，59 品种→现在只需 6 次请求）+ 持仓量列/`main_idx` 改用 f78。
+  4. `fetch_moneyflow.py`：新增 `install_futsse_source(mod)` **运行时 monkey-patch** 服务的 `_fetch_market`（不动服务源码），并按 push2 字段名映射（f2/f5/f6/f15/f16/f18），CLV 算法不变；另加 `ensure_snap_dirs(mod)` 把 Library 真源 insert 进 `MF_SNAP_DIRS` —— 否则快照只写进 `~/Desktop/期货模板/期货研究数据/`，sync 读不到、线上停在 15:42 的旧副本。
+- 关键处置（后续务必沿用）：
+  1. 代理 7890 当时 **OPEN**，但东财 push2 照样不通 → **别再拿"代理通不通"当东财可用性的判据**，直接打 futsse 源。
+  2. 同机 `www.eastmoney.com` / `quote.eastmoney.com` / `futures.eastmoney.com` 仍 200 ⇒ 只有 push2 被掐，可作为"行情源挂了 vs 本机故障"的判别。
+  3. `快照更新状态.json` 的 `profit` 段仍无人写，需显式 `notify.write_status('profit',...)` 后再跑一次 push。
+  4. "一键下载"写进真源的 term 是**截断版**（`len(labels)==6 and main_idx==2`），别当成已刷过。
+  5. 数据唯一真源 = `~/Library/Application Support/期货服务/期货研究数据/`；任务描述里的 `~/Desktop/期货研究数据/` 已于 09-18 删除，脚本全部只认真源。
+  6. 利润快照刷新沿用一次性脚本（json.load → 按 code 更新 asof/src/note → assert 品种集合不变 → 写盘 + .bak → json.load 校验），跑完即弃。
+
+## 2026-09-18 18:01
 - 任务：期限结构刷新 → 利润快照 + 资金流向 → sync_to_site --push → 状态/告警。
 - 结果：**全部成功**，无失败告警。
   - 期限结构：59/59 成功，term_date=2026-09-18（inv/basis/drivers/data_date 未动）。
