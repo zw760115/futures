@@ -8,10 +8,11 @@
   "fetch_time": "2026-09-23 17:46:39"
  },
  "sync": {
-  "last_run": "2026-09-23 17:46:43",
+  "last_run": "2026-09-23 17:48:04",
   "last_success": "2026-09-23 17:46:43",
-  "status": "ok",
-  "pushed": true
+  "status": "fail",
+  "pushed": true,
+  "error": "同步/推送失败（见终端日志），最可能是 FlClash 未开启或网络不通"
  },
  "profit": {
   "last_run": "2026-09-23 17:47:49",
