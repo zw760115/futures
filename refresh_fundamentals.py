@@ -231,10 +231,20 @@ def _fetch_market(mkt, fields, max_pages=6):
 
 def _build_term(code, ex, items):
     """从交易所全量合约中筛出本品种，重建 term 区块。"""
+    # 必须用「品种代码 + 纯数字」锚定匹配，不能用 startswith：
+    # 同一交易所里存在「本品种代码是其它品种代码前缀」的情况，startswith 会把别的品种
+    # 合约一起收进来（2026-09-28 发现，至少 9-18 起已存在）：
+    #   大商所 p 棕榈油 ← pg 液化石油气 / pp 聚丙烯 / pm(期权)
+    #        j 焦炭     ← jd 鸡蛋 / jm 焦煤
+    #        c 玉米     ← cs 玉米淀粉
+    #        b 豆二     ← bb 胶合板 / bz 纯苯
+    #        l 聚乙烯   ← lg 原木 / lh 生猪
+    # 后果：期限结构图混入外品种合约，且 main_idx 会指到外品种（如棕榈主力被标成 pp2701）。
+    _code_pat = re.compile("^" + re.escape((code or "").upper()) + r"\d+$")
     rows_all = [
         r for r in items
-        if r.get("f12") and str(r["f12"]).upper().startswith(code.upper())
-        and str(r["f12"])[-1].isdigit() and _price_of(r) is not None
+        if r.get("f12") and _code_pat.match(str(r["f12"]).upper())
+        and _price_of(r) is not None
     ]
     if not rows_all:
         return None
